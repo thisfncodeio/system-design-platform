@@ -1,0 +1,23 @@
+{
+  "name": "scenario-02-indexes",
+  "version": "1.0.0",
+  "description": "System Design Scenario 2: Indexes and Slow Queries",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node db/seed.js",
+    "loadtest": "node scripts/loadtest.js",
+    "apply-fix": "psql postgresql://postgres:postgres@postgres:5432/shopdb -f db/fix.sql",
+    "explain-orders": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;\"",
+    "explain-products": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;\"",
+    "explain-status": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;\""
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "prom-client": "^15.1.0"
+  },
+  "devDependencies": {
+    "autocannon": "^7.14.0"
+  }
+}

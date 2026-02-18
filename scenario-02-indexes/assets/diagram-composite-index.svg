@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="800" height="480" fill="#f8f9ff" rx="16"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">Composite Indexes — Covering Two Columns at Once</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">When you filter by two columns together, one composite index beats two separate indexes.</text>
+
+  <!-- ====== TOP: The Query ====== -->
+  <rect x="170" y="70" width="460" height="44" fill="#1a1a2e" rx="8"/>
+  <text x="400" y="88" text-anchor="middle" font-size="12" fill="#ffd700" font-family="monospace">SELECT * FROM products</text>
+  <text x="400" y="106" text-anchor="middle" font-size="12" fill="#ffd700" font-family="monospace">WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000</text>
+
+  <!-- ====== LEFT: Wrong order ====== -->
+  <rect x="30" y="130" width="350" height="300" fill="#fff0f0" rx="12" stroke="#ffcccc" stroke-width="2"/>
+  <text x="205" y="158" text-anchor="middle" font-size="14" font-weight="bold" fill="#cc3333">❌ Wrong Column Order</text>
+  <text x="205" y="176" text-anchor="middle" font-size="11" fill="#888">(price_cents, category)</text>
+
+  <!-- Index structure wrong -->
+  <rect x="50" y="185" width="310" height="30" fill="#ffdddd" rx="5" stroke="#ffaaaa" stroke-width="1.5"/>
+  <text x="205" y="204" text-anchor="middle" font-size="11" fill="#333">Index sorted by price_cents first</text>
+
+  <!-- Rows -->
+  <rect x="50" y="222" width="310" height="22" fill="#ffeeee" rx="3"/>
+  <text x="60" y="237" font-size="10" fill="#555">$4.99 → clothing</text>
+  <rect x="50" y="250" width="310" height="22" fill="#ffeeee" rx="3"/>
+  <text x="60" y="265" font-size="10" fill="#555">$5.99 → electronics</text>
+  <rect x="50" y="278" width="310" height="22" fill="#ffeeee" rx="3"/>
+  <text x="60" y="293" font-size="10" fill="#555">$7.50 → books</text>
+  <rect x="50" y="306" width="310" height="22" fill="#ffeeee" rx="3"/>
+  <text x="60" y="321" font-size="10" fill="#555">$9.99 → electronics</text>
+  <text x="205" y="348" text-anchor="middle" font-size="14" fill="#cc3333">⋮</text>
+  <text x="205" y="366" text-anchor="middle" font-size="10" fill="#888">categories are scattered throughout —</text>
+  <text x="205" y="380" text-anchor="middle" font-size="10" fill="#888">must scan many rows even with the index</text>
+
+  <rect x="50" y="392" width="310" height="28" fill="#ffb3b3" rx="6"/>
+  <text x="205" y="410" text-anchor="middle" font-size="11" font-weight="bold" fill="#cc0000">Range filter first = poor selectivity. Slow. 😩</text>
+
+  <!-- ====== RIGHT: Correct order ====== -->
+  <rect x="420" y="130" width="350" height="300" fill="#f0fff4" rx="12" stroke="#b3f0c8" stroke-width="2"/>
+  <text x="595" y="158" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7a3c">✅ Correct Column Order</text>
+  <text x="595" y="176" text-anchor="middle" font-size="11" fill="#888">(category, price_cents)</text>
+
+  <!-- Index structure correct -->
+  <rect x="440" y="185" width="310" height="30" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="595" y="204" text-anchor="middle" font-size="11" fill="#333">Index sorted by category first, then price</text>
+
+  <!-- Rows grouped by category -->
+  <rect x="440" y="222" width="310" height="22" fill="#eeffee" rx="3" stroke="#cceecc" stroke-width="1"/>
+  <text x="450" y="237" font-size="10" fill="#1a7a3c" font-weight="bold">books →</text>
+  <text x="520" y="237" font-size="10" fill="#555">$4.99, $7.99, $12.99, $24.99...</text>
+
+  <rect x="440" y="250" width="310" height="36" fill="#b3f0c8" rx="3" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="450" y="263" font-size="10" fill="#1a7a3c" font-weight="bold">electronics →</text>
+  <text x="538" y="263" font-size="10" fill="#333">$4.99, $9.99...</text>
+  <text x="450" y="280" font-size="10" fill="#1a7a3c">        ✅ $100–$500 range is right here, grouped together</text>
+
+  <rect x="440" y="292" width="310" height="22" fill="#eeffee" rx="3" stroke="#cceecc" stroke-width="1"/>
+  <text x="450" y="307" font-size="10" fill="#1a7a3c" font-weight="bold">clothing →</text>
+  <text x="522" y="307" font-size="10" fill="#555">$8.99, $19.99, $49.99...</text>
+
+  <rect x="440" y="320" width="310" height="22" fill="#eeffee" rx="3" stroke="#cceecc" stroke-width="1"/>
+  <text x="450" y="335" font-size="10" fill="#1a7a3c" font-weight="bold">home →</text>
+  <text x="504" y="335" font-size="10" fill="#555">$12.99, $29.99, $89.99...</text>
+
+  <text x="595" y="362" text-anchor="middle" font-size="10" fill="#555">Jump to 'electronics', then scan only</text>
+  <text x="595" y="376" text-anchor="middle" font-size="10" fill="#555">the price range within that group.</text>
+  <text x="595" y="390" text-anchor="middle" font-size="10" fill="#555">Everything else is skipped entirely.</text>
+
+  <rect x="440" y="400" width="310" height="20" fill="#8fd6a8" rx="6"/>
+  <text x="595" y="414" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">Equality first, range second = fast. 🚀</text>
+
+  <!-- ====== Rule at bottom ====== -->
+  <rect x="30" y="442" width="740" height="30" fill="#e8f4fd" rx="8"/>
+  <text x="400" y="456" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a5276">The rule: put equality filters (=) before range filters (BETWEEN, &gt;, &lt;) in a composite index.</text>
+  <text x="400" y="470" text-anchor="middle" font-size="11" fill="#1a5276">This lets PostgreSQL narrow down to an exact group first, then scan a small range within it.</text>
+
+</svg>

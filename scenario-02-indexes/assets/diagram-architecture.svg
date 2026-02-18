@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="800" height="420" fill="#f8f9ff" rx="16"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">The System You're Working With</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">Three endpoints. One database. 100,000 orders. Three slow queries.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#90b4f5"/>
+    </marker>
+    <marker id="garrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4caf50"/>
+    </marker>
+  </defs>
+
+  <!-- ====== USERS ====== -->
+  <text x="72" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">Users</text>
+  <circle cx="40" cy="128" r="15" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="40" y="133" text-anchor="middle" font-size="14">👤</text>
+  <circle cx="72" cy="142" r="15" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="72" y="147" text-anchor="middle" font-size="14">👤</text>
+  <circle cx="104" cy="128" r="15" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="104" y="133" text-anchor="middle" font-size="14">👤</text>
+  <text x="72" y="172" text-anchor="middle" font-size="10" fill="#888">50 concurrent</text>
+
+  <!-- Arrows users to server -->
+  <line x1="122" y1="135" x2="210" y2="160" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <line x1="122" y1="138" x2="210" y2="195" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <line x1="122" y1="141" x2="210" y2="230" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+
+  <!-- ====== SERVER ====== -->
+  <rect x="212" y="110" width="210" height="200" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2.5"/>
+  <text x="317" y="135" text-anchor="middle" font-size="13" font-weight="bold" fill="#b8860b">🖥️ Server</text>
+  <text x="317" y="152" text-anchor="middle" font-size="11" fill="#888">Node.js + Express</text>
+
+  <!-- Endpoint 1 -->
+  <rect x="226" y="160" width="182" height="36" fill="#fff3cd" rx="6" stroke="#ffc107" stroke-width="1.5"/>
+  <text x="317" y="175" text-anchor="middle" font-size="11" font-weight="bold" fill="#555">GET /orders?user_id=123</text>
+  <text x="317" y="190" text-anchor="middle" font-size="10" fill="#cc3333">⚠️ no index on user_id</text>
+
+  <!-- Endpoint 2 -->
+  <rect x="226" y="202" width="182" height="36" fill="#fff3cd" rx="6" stroke="#ffc107" stroke-width="1.5"/>
+  <text x="317" y="216" text-anchor="middle" font-size="10" font-weight="bold" fill="#555">GET /products?category&amp;price</text>
+  <text x="317" y="231" text-anchor="middle" font-size="10" fill="#cc3333">⚠️ no composite index</text>
+
+  <!-- Endpoint 3 -->
+  <rect x="226" y="244" width="182" height="36" fill="#fff3cd" rx="6" stroke="#ffc107" stroke-width="1.5"/>
+  <text x="317" y="258" text-anchor="middle" font-size="11" font-weight="bold" fill="#555">GET /orders/summary?status</text>
+  <text x="317" y="273" text-anchor="middle" font-size="10" fill="#888">❓ index needed here?</text>
+
+  <!-- Arrow server to DB -->
+  <line x1="424" y1="210" x2="494" y2="210" stroke="#4caf50" stroke-width="2.5" marker-end="url(#garrow)"/>
+  <text x="459" y="202" text-anchor="middle" font-size="10" fill="#4caf50">queries</text>
+
+  <!-- ====== DATABASE ====== -->
+  <rect x="496" y="110" width="272" height="200" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2.5"/>
+  <text x="632" y="135" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🗄️ Database</text>
+  <text x="632" y="152" text-anchor="middle" font-size="11" fill="#888">PostgreSQL — 3 tables</text>
+
+  <!-- Users table -->
+  <rect x="510" y="160" width="115" height="52" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
+  <text x="567" y="177" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">users</text>
+  <text x="567" y="192" text-anchor="middle" font-size="9" fill="#555">1,000 rows</text>
+  <text x="567" y="205" text-anchor="middle" font-size="9" fill="#555">id, email</text>
+
+  <!-- Products table -->
+  <rect x="635" y="160" width="119" height="52" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
+  <text x="694" y="177" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">products</text>
+  <text x="694" y="192" text-anchor="middle" font-size="9" fill="#555">500 rows</text>
+  <text x="694" y="205" text-anchor="middle" font-size="9" fill="#555">category, price_cents</text>
+
+  <!-- Orders table -->
+  <rect x="510" y="222" width="244" height="72" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
+  <text x="632" y="239" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">orders</text>
+  <text x="632" y="255" text-anchor="middle" font-size="10" fill="#cc3333" font-weight="bold">100,000 rows</text>
+  <text x="632" y="270" text-anchor="middle" font-size="9" fill="#555">user_id · status · total_cents · created_at</text>
+  <text x="632" y="284" text-anchor="middle" font-size="9" fill="#cc3333">no indexes on user_id or status</text>
+
+  <!-- ====== BOTTOM WARNING ====== -->
+  <rect x="30" y="328" width="740" height="36" fill="#fff3cd" rx="8" stroke="#ffc107" stroke-width="1.5"/>
+  <text x="400" y="343" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8860b">Your job: run EXPLAIN ANALYZE on each query, find the slow ones, and decide which need an index.</text>
+  <text x="400" y="358" text-anchor="middle" font-size="11" fill="#b8860b">Not every slow query needs one — that's the lesson.</text>
+
+  <!-- ====== SINGLE POINT OF FAILURE ====== -->
+  <rect x="212" y="375" width="556" height="24" fill="none" rx="6" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="490" y="391" text-anchor="middle" font-size="10" fill="#cc3333">⚠️ Still one server, one database — single point of failure (covered in later scenarios)</text>
+
+</svg>

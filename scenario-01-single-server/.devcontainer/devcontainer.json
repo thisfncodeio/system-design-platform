@@ -1,0 +1,43 @@
+{
+  "name": "System Design — Scenario 1: The Single Server Problem",
+
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/app",
+
+  "forwardPorts": [3000, 3002, 9090],
+  "portsAttributes": {
+    "3000": {
+      "label": "App (Feed API)",
+      "onAutoForward": "notify"
+    },
+    "3002": {
+      "label": "Grafana Dashboard",
+      "onAutoForward": "openBrowser"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "editor.fontSize": 14,
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "postStartCommand": "npm install && node scripts/wait-and-seed.js",
+
+  "postAttachCommand": "code SCENARIO.md"
+}
