@@ -255,3 +255,28 @@ GitHub Codespaces discovers devcontainers from `.devcontainer/FOLDER_NAME/devcon
 
 **wait-and-seed.js filename**
 The seed script must be named exactly `wait-and-seed.js` — not `wait-and-see.js`. The `postStartCommand` references this filename explicitly. A typo here causes the entire Codespace setup to fail silently.
+
+---
+
+## Scenario Quality Assessment
+
+An honest assessment of where the scenarios stand relative to real production systems. Important for knowing what to improve as the platform matures.
+
+**What is enterprise-level:**
+
+- The tools are real — Prometheus, Grafana, Docker Compose, PostgreSQL, connection pooling with `pg` are exactly what you'd find in a production Node.js backend at any serious company
+- The diagnostic workflow is real — load test, observe metrics, form a hypothesis, fix, verify. That's the actual job.
+- The concepts are real — connection pooling, index cardinality, composite indexes, EXPLAIN ANALYZE. These are the exact decisions engineers make in production every day.
+
+**What is intentionally simplified:**
+
+- **Scale is small** — 10,000-100,000 rows instead of millions. We simulate slowness with artificial delays rather than letting real data volume create it naturally. This is a concession to running on a laptop. It works for learning but is not what production looks like.
+- **Apps are simple** — no authentication, no middleware stack, no multiple services talking to each other, no logging pipelines. Complexity is deliberately removed so it doesn't obscure the lesson being taught.
+- **Failure modes are clean** — in production, problems are rarely one obvious broken thing. They're usually several things interacting in non-obvious ways. Our scenarios isolate one problem per scenario deliberately, which is right for learning but different from reality.
+- **No CI/CD or deployment** — no staging vs production, no deployment pipelines, no rollback strategies. These are real concerns a working engineer faces but are out of scope for the current curriculum.
+
+**The right tradeoff:**
+Simplified in scope and complexity in service of learning. The concepts and tools are enterprise-level. The scenarios are intentionally constrained so the lesson is clear. As scenarios progress toward the Sprinting tier they should get meaningfully more complex — messier codebases, less obvious failure modes, closer to real production scale and ambiguity.
+
+**Target for Sprinting scenarios:**
+By the time a learner reaches the Sprinting tier (URL shortener, notification system, news feed, chat), the codebases should feel closer to real production systems — multiple interacting services, realistic data volumes, failure modes that aren't immediately obvious. The simplification scaffolding should be removed progressively as the learner advances.
