@@ -1,3 +1,13 @@
+/**
+ * SCENARIO 1: The Single Server
+ *
+ * This is the backend for a simple social post feed.
+ * It works fine with a handful of users — but what happens
+ * when traffic picks up?
+ *
+ * Your job: understand this system, stress test it, and fix it.
+ */
+
 const express = require("express"); // Express framework
 const { Pool } = require("pg"); // PostgreSQL client library
 const client = require("prom-client"); // Prometheus client library
@@ -5,9 +15,55 @@ const client = require("prom-client"); // Prometheus client library
 const app = express(); // Create a new Express server
 app.use(express.json()); // Parse JSON bodies from incoming requests into req.body object
 
-const collectDefaultMetrics = client.collectDefaultMetrics;
-collectDefaultMetrics(); // Collect default metrics
+// ======================================================
+// METRICS
+// Collects default Node.js metrics (memory, CPU, etc.)
+// and custom HTTP metrics (request rate, latency, errors).
+// Prometheus scrapes these every 5 seconds.
+// ======================================================
+client.collectDefaultMetrics(); // Collect default metrics
 
+// Create a new counter metric to track the total number of HTTP requests
+const httpRequestsTotal = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
+});
+
+// Create a new histogram metric to track the duration of HTTP requests
+const httpRequestDuration = new client.Histogram({
+  name: "http_request_duration_ms",
+  help: "HTTP request duration in milliseconds",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [10, 50, 100, 200, 500, 1000, 2000, 5000], // Buckets for the histogram
+});
+
+// Middleware to track every request
+app.use((req, res, next) => {
+  // Get the start time of the request
+  const start = Date.now();
+  // On finish of the request, track the duration of the request
+  res.on("finish", () => {
+    // Get the duration of the request
+    const duration = Date.now() - start;
+    // Get the route of the request
+    const route = req.route ? req.route.path : req.path;
+    // Increment the counter metric
+    httpRequestsTotal.labels(req.method, route, res.statusCode).inc();
+    // Observe the duration of the request
+    httpRequestDuration.labels(req.method, route, res.statusCode).observe(duration);
+  });
+  // Continue to the next middleware
+  next();
+});
+
+// ======================================================
+// DATABASE CONNECTION
+//
+// We're creating a new database connection for every
+// request that comes in. This is a common mistake in
+// early backends. Keep this in mind as you read the code.
+// ======================================================
 // Create a new database connection
 function getDbConnection() {
   // Use the Pool class to create a new database connection with the following configuration
@@ -22,7 +78,10 @@ function getDbConnection() {
   });
 }
 
-// -- ROUTES --
+// ======================================================
+// ROUTES
+// ======================================================
+
 app.post("/posts", async (req, res) => {
   // Get the userId and content from the request body
   const { userId, content } = req.body;
@@ -77,7 +136,8 @@ app.get("/feed", async (req, res) => {
       LIMIT 20
     `);
 
-    // Simulates a sequential scan on a large unindexed table
+    // Simulates the slowness of a sequential scan on a large table
+    // (what happens in production when created_at has no index)
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Return the feed
@@ -121,6 +181,7 @@ app.get("/users/:id/posts", async (req, res) => {
   }
 });
 
+// Prometheus scrapes this endpoint every 5 seconds.
 app.get("/metrics", async (req, res) => {
   // Set the content type to the Prometheus content type
   res.set("Content-Type", client.register.contentType);
@@ -132,10 +193,13 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// -- START SERVER --
+// ======================================================
+// START SERVER
+// ======================================================
 const PORT = process.env.PORT || 3000; // Use the port from the environment variables, default to 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`); // Log the port the server is running on
+  console.log(`Try: curl http://localhost:${PORT}/health`);
 });
 
 module.exports = app; // Export the Express server
