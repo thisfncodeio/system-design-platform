@@ -1,8 +1,12 @@
 const express = require("express"); // Express framework
 const { Pool } = require("pg"); // PostgreSQL client library
+const client = require("prom-client"); // Prometheus client library
 
 const app = express(); // Create a new Express server
 app.use(express.json()); // Parse JSON bodies from incoming requests into req.body object
+
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics(); // Collect default metrics
 
 // Create a new database connection
 function getDbConnection() {
@@ -19,10 +23,6 @@ function getDbConnection() {
 }
 
 // -- ROUTES --
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
 app.post("/posts", async (req, res) => {
   // Get the userId and content from the request body
   const { userId, content } = req.body;
@@ -119,6 +119,17 @@ app.get("/users/:id/posts", async (req, res) => {
     // Close the database connection after the user's posts are fetched
     await db.end();
   }
+});
+
+app.get("/metrics", async (req, res) => {
+  // Set the content type to the Prometheus content type
+  res.set("Content-Type", client.register.contentType);
+  // Send the metrics
+  res.send(await client.register.metrics());
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 // -- START SERVER --

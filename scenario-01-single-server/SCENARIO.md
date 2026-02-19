@@ -65,6 +65,8 @@ Everything is already running. You don't need to install anything.
 
 Open a terminal with **Ctrl+`** (or Terminal → New Terminal in the menu).
 
+To open Grafana: click the **Ports** tab at the bottom of VS Code, find Port 3002, and click the globe icon next to it. Login: admin / admin.
+
 ---
 
 ## Step 1 — Read the Code
@@ -100,12 +102,6 @@ Your guess:
 ---
 
 ## Step 2 — Run the Load Test
-
-**Before you start:** Make sure you're in the right folder. In your terminal run:
-
-```bash
-cd scenario-01-single-server
-```
 
 In your terminal, run:
 
