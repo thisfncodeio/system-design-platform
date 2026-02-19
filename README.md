@@ -4,13 +4,35 @@ Learn system design by doing, not watching.
 
 Each scenario drops you into a real broken codebase. You diagnose what's wrong, fix it, and watch the metrics change in real time. No local setup. No abstract diagrams. Just real code, real problems, real feedback.
 
-**Who this is for:** Entry-level engineers who want to reach mid-level. If you've built CRUD apps but never thought about what happens when 100 people use it at once — start here.
+Everything you do here is exactly what engineers do in production — the same tools, the same diagnostic process, the same fixes.
+
+**Track 1:** Entry-level to mid-level — if you've built CRUD apps but never thought about what happens when 100 people use it at once, start here.  
+**Track 2:** Mid-level to senior — if you know the building blocks but struggle to design systems from scratch, reason about failure modes, or make tradeoff decisions under ambiguity, this is your track.
 
 ---
 
-## The Curriculum
+## How to Open a Scenario
 
-Work through these in order, or jump to the concept you need.
+Each scenario runs in your browser using GitHub Codespaces — no installs required.
+
+1. Click the green **Code** button at the top of this page
+2. Select the **Codespaces** tab
+3. Click **Create codespace on main**
+4. Wait ~2 minutes for the environment to build
+5. When VS Code opens, open the terminal with **Ctrl+`**
+6. Navigate into the scenario you want to start:
+   ```bash
+   cd scenario-01-single-server
+   ```
+7. Follow the instructions in **SCENARIO.md**
+
+> **First time?** Start with Scenario 1. The environment sets itself up automatically — database seeded, app running, metrics dashboard ready.
+
+---
+
+## Track 1 — Entry to Mid
+
+Work through these in order, or jump to the concept you need. Scenarios 1–4 build on each other. From Scenario 5 onwards each includes a recap so you can jump in anywhere.
 
 ### 🐛 Crawling — Understand how one server works and why it breaks
 
@@ -48,15 +70,44 @@ Work through these in order, or jump to the concept you need.
 
 ---
 
-## How to Open a Scenario
+## Track 2 — Mid to Senior
 
-Each scenario runs in your browser using GitHub Codespaces — no installs required.
+Track 2 begins where Track 1 ends. The Crawling and Walking scenarios follow the same broken codebase format — but the systems are distributed and the failures are harder to reason about. The Sprinting scenarios are open-ended design challenges: no single right answer, evaluated on the quality of your reasoning and tradeoff decisions.
 
-1. Click the scenario link in the table above
-2. Click the green **Code** button
-3. Select **Codespaces** → **Create codespace on main**
-4. Wait ~2 minutes for the environment to build
-5. Follow the **SCENARIO.md** file that opens automatically
+### 🐛 Crawling — Distributed systems fundamentals
+
+| # | Scenario | Concepts | Status |
+|---|----------|----------|--------|
+| 1 | Why Distributed Systems Are Hard | Partial failures · Network unreliability · No shared clock | 🔜 Coming soon |
+| 2 | CAP Theorem in Practice | Consistency vs availability · Feeling the tradeoff through real code | 🔜 Coming soon |
+| 3 | Eventual Consistency | Node disagreement · Reconciliation · Conflict resolution | 🔜 Coming soon |
+
+### 🚶 Walking — Scaling patterns
+
+| # | Scenario | Concepts | Status |
+|---|----------|----------|--------|
+| 4 | Horizontal Scaling Done Right | Stateless services · Shared session state · Sticky session traps | 🔜 Coming soon |
+| 5 | Database Sharding | What it solves · What it breaks · Picking a shard key | 🔜 Coming soon |
+| 6 | Replication Lag | When lag causes real bugs · How to design around it | 🔜 Coming soon |
+| 7 | Consistent Hashing | Why naive sharding breaks · Virtual nodes · Minimal redistribution | 🔜 Coming soon |
+
+### 🏃 Running — Resilience and failure design
+
+| # | Scenario | Concepts | Status |
+|---|----------|----------|--------|
+| 8 | Circuit Breakers and Retries | Designing for failure · Exponential backoff · Bulkheads | 🔜 Coming soon |
+| 9 | Idempotency | Why it matters · What breaks without it · Implementation patterns | 🔜 Coming soon |
+| 10 | Distributed Transactions | Two-phase commit · Saga pattern · Why this is hard | 🔜 Coming soon |
+| 11 | Rate Limiting at Scale | Distributed rate limiting · Token bucket · Sliding window across nodes | 🔜 Coming soon |
+
+### 🏎️ Sprinting — Architecture design problems
+
+| # | Scenario | Concepts | Status |
+|---|----------|----------|--------|
+| 12 | Design Under Ambiguity | Vague requirements · Defensible decisions · Communicating tradeoffs | 🔜 Coming soon |
+| 13 | Spot What's Wrong | Reading someone else's architecture · Identifying failure modes | 🔜 Coming soon |
+| 14 | Scale an Existing System | 10x load · What changes first · Order of operations | 🔜 Coming soon |
+| 15 | Cost vs Performance | Budget constraints · Where to cut · What you sacrifice | 🔜 Coming soon |
 
 ---
 
@@ -66,7 +117,7 @@ Every scenario follows the same structure:
 
 - **A real codebase** — Node.js app with an intentional problem
 - **A load test** — makes the problem visible immediately
-- **A live dashboard** — Grafana metrics so you see what's happening
+- **A live dashboard** — Grafana metrics so you see what's happening in real time
 - **SCENARIO.md** — guided walkthrough: read, diagnose, fix, reflect
 - **A solution file** — with detailed comments, revealed after you try
 
@@ -75,13 +126,19 @@ Every scenario follows the same structure:
 ## FAQ
 
 **Do I need to do them in order?**
-The crawling scenarios (1-4) build on each other and are best done in order. From Scenario 5 onwards each scenario includes a recap of what it depends on, so you can jump in anywhere.
+For Track 1, Scenarios 1–4 build on each other and are best done in order. From Scenario 5 onwards each includes a recap so you can jump in anywhere. For Track 2, the same applies — Crawling and Walking build sequentially, Sprinting scenarios are largely standalone.
 
-**What do I need to know before starting?**
-Basic JavaScript and some experience with Node.js or a similar backend. You don't need to know anything about system design — that's what this is for.
+**What do I need to know before starting Track 1?**
+Basic JavaScript and some experience building a backend — Node.js, Express, or similar. You don't need to know anything about system design. That's what this is for.
+
+**What do I need to know before starting Track 2?**
+Complete Track 1 first, or have equivalent experience. You should be comfortable with indexes, caching, load balancing, and message queues before starting Track 2.
 
 **How long does each scenario take?**
 About 45 minutes if you work through it properly. Rushing through without answering the questions defeats the purpose.
 
 **What language are the codebases in?**
 Node.js / JavaScript. The system design concepts apply to any language — the code is just the vehicle.
+
+**Is this interview prep?**
+Not primarily. This is the actual job — the same tools, diagnostic process, and fixes engineers use in production. If you understand the material deeply enough to do the work, you'll be able to talk about it in an interview too. But that's a side effect, not the goal.
