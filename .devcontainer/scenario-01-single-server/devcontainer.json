@@ -37,6 +37,6 @@
     }
   },
 
-  "postStartCommand": "npm install && node scripts/wait-and-seed.js",
+  "postStartCommand": "cd /app && npm install && node scripts/wait-and-seed.js",
   "postAttachCommand": "code SCENARIO.md"
 }
