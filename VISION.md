@@ -231,3 +231,27 @@ Open-ended design challenges evaluated by AI. What does the rubric look like? Ho
 
 **Pricing and business model**
 Not yet decided. Not the current focus. The current focus is getting the learning experience right.
+
+---
+
+## Infrastructure Notes
+
+Technical decisions and gotchas discovered during building and testing. Important context for future work.
+
+**Grafana datasource UID must be pinned**
+Grafana auto-generates a datasource UID when provisioning. If the UID in the dashboard JSON doesn't match the provisioned datasource UID, all panels show "No data." Fix: set `uid: PBFA97CFB590B2093` explicitly in `grafana-datasource.yml` and use the same UID in `grafana-dashboard.json`. This must be consistent across all scenarios.
+
+**HTTP metrics require custom instrumentation**
+`prom-client`'s `collectDefaultMetrics()` only collects Node.js process metrics (memory, CPU, event loop). HTTP-specific metrics (request rate, latency by route, error rate) require a custom Express middleware that tracks each request with `Counter` and `Histogram`. This middleware must be added to every scenario's `server.js`. The metrics endpoint must be exposed at `GET /metrics`.
+
+**Grafana does not auto-open in Codespaces**
+`"onAutoForward": "openBrowser"` fires before Grafana finishes starting up, so the browser tab opens to a connection error. Changed to `"onAutoForward": "notify"` for all scenarios. SCENARIO.md instructs learners to open Grafana manually from the Ports tab.
+
+**postStartCommand runs inside the app container**
+The `postStartCommand` in devcontainer.json runs inside the Docker container at `/app`, not on the Codespaces host. Commands must use `cd /app &&` prefix to ensure correct working directory. `docker` and `curl` are not available inside the Alpine container — use Node.js for any health checks.
+
+**Devcontainer discovery in monorepo**
+GitHub Codespaces discovers devcontainers from `.devcontainer/FOLDER_NAME/devcontainer.json` at the repo root. Each scenario's devcontainer must live at `.devcontainer/scenario-XX-name/devcontainer.json`. The `dockerComposeFile` path is relative to the devcontainer file location — use `../../scenario-XX-name/docker-compose.yml`.
+
+**wait-and-seed.js filename**
+The seed script must be named exactly `wait-and-seed.js` — not `wait-and-see.js`. The `postStartCommand` references this filename explicitly. A typo here causes the entire Codespace setup to fail silently.
