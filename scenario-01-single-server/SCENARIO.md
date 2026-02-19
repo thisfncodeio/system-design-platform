@@ -62,10 +62,30 @@ Everything is already running. You don't need to install anything.
 | ----------------- | --------- | ------------------------------------------- |
 | Feed API          | Port 3000 | The app you're investigating                |
 | Grafana Dashboard | Port 3002 | Live metrics — watch this during load tests |
+| Prometheus        | Port 9090 | Collects metrics from the app               |
 
 Open a terminal with **Ctrl+`** (or Terminal → New Terminal in the menu).
 
-To open Grafana: click the **Ports** tab at the bottom of VS Code, find Port 3002, and click the globe icon next to it. Login: admin / admin.
+---
+
+## How to Open Grafana
+
+Grafana is your live metrics dashboard. You'll use it to watch what happens to the system during load tests.
+
+1. Click the **Ports** tab at the bottom of VS Code
+2. Find **Port 3002** in the list
+3. Click the globe 🌐 icon next to it — this opens Grafana in your browser
+4. Login with **admin / admin**
+5. In the left sidebar click **Dashboards**
+6. Click **Scenario 1 — The Single Server Problem**
+
+You should see four panels: Request Rate, Response Latency, Error Rate, and Memory Usage. They will show "No data" until traffic hits the server — that's normal.
+
+**Using Grafana:**
+
+- The dashboard auto-refreshes every 5 seconds — you don't need to do anything
+- The default time range is "Last 5 minutes" — if you miss the load test window, change it to "Last 15 minutes" using the time picker in the top right
+- Each panel shows a different signal. During a load test watch them all change at once — that's the system under stress in real time
 
 ---
 
@@ -111,7 +131,9 @@ npm run loadtest
 
 This sends 100 concurrent users to the `/feed` endpoint for 30 seconds. That's not extreme traffic — a real app might handle thousands — but it's enough to reveal what's wrong here.
 
-**While it runs:** open Grafana (Port 3002, login: admin / admin) and watch the metrics in real time.
+**While it runs:** switch to Grafana in your browser and watch all four panels. You'll see the request rate spike, latency climb, and the error rate shoot up almost immediately.
+
+> 💡 **Tip:** Have Grafana open before you run the load test so you don't miss the data. If you do miss it, change the time range to "Last 15 minutes" to see what happened.
 
 **After it finishes**, record what you saw:
 
@@ -163,7 +185,7 @@ Your answer:
 
 You've diagnosed the problems. Now fix them. Two changes, in order.
 
-After each fix, restart the server and run the load test again to see the impact.
+After each fix, restart the server and run the load test again to see the impact in both the terminal output and Grafana.
 
 ---
 
@@ -220,7 +242,7 @@ Restart the server after saving:
 npm run start
 ```
 
-Run the load test again:
+Run the load test again and watch Grafana while it runs:
 
 ```bash
 npm run loadtest
@@ -234,7 +256,7 @@ What's the success rate now? Record it in the table in Step 4.
 
 **The problem in plain terms:** Every time `/feed` is called, PostgreSQL reads every row in the posts table to find the most recent ones. With 10,000 rows this is slow. In production with millions of rows, it would bring the system down.
 
-**The fix in plain terms:** Add an index on `created_at` so PostgreSQL can jump straight to the most recent posts.
+**The fix in plain terms:** Add an index on `created_at` so PostgreSQL can jump straight to the most recent posts instead of scanning every row.
 
 Run this in your terminal:
 
@@ -250,11 +272,13 @@ npm run explain-query
 
 Look at the output. You're looking for `Index Scan` — that means PostgreSQL is using the index. If you saw `Seq Scan` before (sequential scan = reading every row), you'll now see `Index Scan`. That's the fix working.
 
-Run the load test one final time:
+Run the load test one final time and watch Grafana:
 
 ```bash
 npm run loadtest
 ```
+
+Notice what changes in the Response Latency panel compared to the first two runs.
 
 ---
 
@@ -314,19 +338,23 @@ There are no wrong answers here. These are the exact questions a senior engineer
 
 **Single points of failure** exist in every system. Identifying them is the first step to designing around them. You just identified three.
 
+**Grafana and Prometheus** are the industry standard for observability. You just used the same tools engineers use at companies of every size to diagnose production problems in real time.
+
 You didn't just read about these concepts. You watched them fail in real time and fixed them. That's the difference.
 
 ---
 
 ## Stuck at Any Point?
 
-| Problem                               | What to do                                                          |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| Load test shows no errors after Fix 1 | Make sure you restarted the server: `npm run start`                 |
-| `npm run apply-fix` fails             | Run `npm run loadtest` anyway — the index may already exist         |
-| Grafana showing no data               | Give it 30 seconds after startup to connect to Prometheus           |
-| Really stuck on the code fix          | Open `src/server.fixed.js` — it has the full solution with comments |
+| Problem                                      | What to do                                                                                      |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Load test shows no errors after Fix 1        | Make sure you restarted the server: `npm run start`                                             |
+| `npm run apply-fix` fails                    | Run `npm run loadtest` anyway — the index may already exist                                     |
+| Grafana showing "No data"                    | Make sure you ran `npm run loadtest` first — panels only show data when traffic hits the server |
+| Grafana panels are empty after the load test | Change the time range to "Last 15 minutes" in the top right — you may have missed the window    |
+| Can't find the dashboard in Grafana          | Click Dashboards in the left sidebar → Scenario 1 — The Single Server Problem                   |
+| Really stuck on the code fix                 | Open `src/server.fixed.js` — it has the full solution with comments                             |
 
 ---
 
-_Next: Scenario 2 — Load Balancing & Stateless Servers →_
+_Next: Scenario 2 — Indexes and Slow Queries →_
