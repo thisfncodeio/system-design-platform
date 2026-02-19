@@ -1,7 +1,7 @@
 {
-  "name": "System Design — Scenario 1: The Single Server Problem",
+  "name": "Scenario 1 — The Single Server Problem",
 
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../../scenario-01-single-server/docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/app",
 
@@ -38,6 +38,5 @@
   },
 
   "postStartCommand": "npm install && node scripts/wait-and-seed.js",
-
   "postAttachCommand": "code SCENARIO.md"
 }

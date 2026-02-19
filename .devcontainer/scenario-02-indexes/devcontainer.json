@@ -1,7 +1,7 @@
 {
-  "name": "System Design — Scenario 2: Indexes and Slow Queries",
+  "name": "Scenario 2 — Indexes and Slow Queries",
 
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../../scenario-02-indexes/docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/app",
 
