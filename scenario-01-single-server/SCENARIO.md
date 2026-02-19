@@ -10,15 +10,17 @@
 
 You've just joined a startup as a junior backend engineer.
 
-This is the backend: a simple social post feed. Users can create posts, anyone can fetch a feed of the most recent ones. The code is clean. It works. The team ships it to production.
+This is the backend: a simple social post feed. Users can create posts (`POST /posts`), and fetch a feed of the most recent ones (`GET /feed`). The code is clean. It works. The team ships it to production.
 
-A week later, traffic picks up. The app starts timing out. Users are getting errors. Your tech lead messages you:
+A week later, traffic picks up. The app starts timing out. Users are getting errors.
+
+![System Architecture](assets/diagram-architecture.svg)
+
+Your tech lead messages you:
 
 > _"Something's wrong with the feed endpoint. Can you look into it?"_
 
 Your job is to figure out what's breaking and fix it.
-
-![System Architecture](assets/diagram-architecture.svg)
 
 ---
 
@@ -41,12 +43,12 @@ When an index doesn't make sense:
 
 - Columns that are rarely queried — an index you never use just wastes storage
 - Columns with very few distinct values — imagine an index on a `status` column that only has "active" or "inactive." Half the table is "active" so the index saves almost nothing. PostgreSQL might just scan the whole table anyway.
-- Tables that are written to extremely frequently — every INSERT, UPDATE, or DELETE has to update the index too. Too many indexes on a write-heavy table slows writes down.
+- Tables that are written to **extremely** frequently with very few reads — think logging tables with thousands of inserts per second — every INSERT, UPDATE, or DELETE has to update the index too. Too many indexes on a write-heavy table slows writes down. For most tables that are read more than they're written to, the cost of maintaining an index on writes is negligible. The `posts` table in this scenario gets written to when users create posts, but it's read far more often than it's written to — so the index is worth it.
 
 ![Database Index Diagram](assets/diagram-index.svg)
 
 **What is a connection pool?**
-Opening a connection to a database takes time — roughly 50ms. A connection pool keeps a set of connections open and ready to reuse, like having a pool of taxis waiting rather than calling a new one from scratch every time. Without pooling, every request to your server has to open its own connection — which breaks down fast under load.
+Opening a connection to a database takes time — roughly 50ms. A connection pool keeps a set of connections open and ready to reuse, like having a pool of taxis waiting rather than calling a new one from scratch every time. Without pooling, every request to your server has to open its own connection — which breaks down fast under load. With a pool, if all connections are busy, new requests wait their turn in a queue rather than failing immediately — which is far more reliable under load.
 
 ![Connection Pool Diagram](assets/diagram-connection-pool.svg)
 
@@ -98,6 +100,12 @@ Your guess:
 ---
 
 ## Step 2 — Run the Load Test
+
+**Before you start:** Make sure you're in the right folder. In your terminal run:
+
+```bash
+cd scenario-01-single-server
+```
 
 In your terminal, run:
 

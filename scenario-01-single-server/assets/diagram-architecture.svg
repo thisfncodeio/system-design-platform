@@ -77,8 +77,8 @@
 
   <!-- Warning: no index -->
   <rect x="530" y="289" width="158" height="28" fill="#ffdddd" rx="5"/>
-  <text x="609" y="302" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ posts is sorted by created_at</text>
-  <text x="609" y="314" text-anchor="middle" font-size="9" fill="#cc3333">but there is NO index on it</text>
+  <text x="609" y="302" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ /feed queries ORDER BY created_at</text>
+  <text x="609" y="314" text-anchor="middle" font-size="9" fill="#cc3333">but NO index exists on that column</text>
 
   <!-- ====== SINGLE POINT OF FAILURE ====== -->
   <rect x="240" y="325" width="472" height="32" fill="none" rx="8" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="5,3"/>
