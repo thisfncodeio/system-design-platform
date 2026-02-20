@@ -10,7 +10,7 @@
 
 const express = require("express"); // Express framework
 const { Pool } = require("pg"); // PostgreSQL client library
-const client = require("prom-client"); // Prometheus client library
+const client = require("prom-client"); // Prometheus metrics library
 
 const app = express(); // Create a new Express server
 app.use(express.json()); // Parse JSON bodies from incoming requests into req.body object
@@ -19,7 +19,7 @@ app.use(express.json()); // Parse JSON bodies from incoming requests into req.bo
 // METRICS
 // Collects default Node.js metrics (memory, CPU, etc.)
 // and custom HTTP metrics (request rate, latency, errors).
-// Prometheus scrapes these every 5 seconds.
+// Prometheus scrapes these every 5 seconds from /metrics.
 // ======================================================
 client.collectDefaultMetrics(); // Collect default metrics
 
@@ -38,10 +38,12 @@ const httpRequestDuration = new client.Histogram({
   buckets: [10, 50, 100, 200, 500, 1000, 2000, 5000], // Buckets for the histogram
 });
 
-// Middleware to track every request
+// Middleware — runs before every route handler.
+// Records how long each request took and what status code it returned.
 app.use((req, res, next) => {
   // Get the start time of the request
   const start = Date.now();
+
   // On finish of the request, track the duration of the request
   res.on("finish", () => {
     // Get the duration of the request
@@ -53,16 +55,16 @@ app.use((req, res, next) => {
     // Observe the duration of the request
     httpRequestDuration.labels(req.method, route, res.statusCode).observe(duration);
   });
-  // Continue to the next middleware
-  next();
+
+  next(); // Pass control to the next middleware or route handler
 });
 
 // ======================================================
 // DATABASE CONNECTION
 //
-// We're creating a new database connection for every
-// request that comes in. This is a common mistake in
-// early backends. Keep this in mind as you read the code.
+// A new Pool (connection) is created for every request
+// that comes in. This is a common mistake in early backends.
+// Keep this in mind as you read the code.
 // ======================================================
 // Create a new database connection
 function getDbConnection() {
@@ -111,7 +113,7 @@ app.post("/posts", async (req, res) => {
     // Return a 500 error if the post creation fails
     res.status(500).json({ error: "Something went wrong" });
   } finally {
-    // Close the database connection after the post is created
+    // Close the database connection after each request
     await db.end();
   }
 });
@@ -137,7 +139,7 @@ app.get("/feed", async (req, res) => {
     `);
 
     // Simulates the slowness of a sequential scan on a large table
-    // (what happens in production when created_at has no index)
+    // In production, a missing index on created_at would cause this naturally.
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Return the feed

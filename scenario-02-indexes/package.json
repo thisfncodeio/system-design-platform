@@ -7,10 +7,7 @@
     "start": "node src/server.js",
     "seed": "node db/seed.js",
     "loadtest": "node scripts/loadtest.js",
-    "apply-fix": "psql postgresql://postgres:postgres@postgres:5432/shopdb -f db/fix.sql",
-    "explain-orders": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;\"",
-    "explain-products": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;\"",
-    "explain-status": "psql postgresql://postgres:postgres@postgres:5432/shopdb -c \"EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;\""
+    "status": "node -e \"const {Pool} = require('pg'); const db = new Pool({host:'postgres',user:'postgres',password:'postgres',database:'shopdb'}); db.query('SELECT COUNT(*) FROM orders').then(r => { console.log('✅ Database ready. Orders in DB:', r.rows[0].count); db.end(); }).catch(() => { console.log('❌ Database not ready yet.'); db.end(); })\""
   },
   "dependencies": {
     "express": "^4.18.2",

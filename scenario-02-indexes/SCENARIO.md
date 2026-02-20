@@ -48,6 +48,8 @@ Everything is already running.
 
 Open a terminal with **Ctrl+`**
 
+To open Grafana: click the **Ports** tab at the bottom of VS Code, find Port 3002, and click the globe 🌐 icon. Login: admin / admin. Navigate to Dashboards → Scenario 2.
+
 ---
 
 ## Step 1 — Understand the System
@@ -89,26 +91,36 @@ Your answer:
 
 ## Step 2 — See the Slow Queries in Action
 
-First, use EXPLAIN ANALYZE to see exactly what PostgreSQL is doing for each query. This is the most important tool a backend engineer has for diagnosing slow queries.
+First, connect to the database and use EXPLAIN ANALYZE to see exactly what PostgreSQL is doing for each query. This is the most important diagnostic tool a backend engineer has.
 
-**What is EXPLAIN ANALYZE?**
-It runs the query and shows you the execution plan — how PostgreSQL decided to find the data. The two things to look for:
+```bash
+psql postgresql://postgres:postgres@postgres:5432/shopdb
+```
+
+You're now inside the PostgreSQL shell. Run each query and look at the output:
+
+**Query 1 — Filter by user_id:**
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
+```
+
+**Query 2 — Filter by category and price:**
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;
+```
+
+**Query 3 — Filter by status:**
+
+```sql
+EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;
+```
+
+**What to look for:**
 
 - `Seq Scan` = sequential scan = reading every row = slow on large tables
 - `Index Scan` = using an index = jumping directly to matching rows = fast
-
-Run each one and look at the output:
-
-```bash
-# Query 1: Filter by user_id
-npm run explain-orders
-
-# Query 2: Filter by category and price
-npm run explain-products
-
-# Query 3: Filter by status
-npm run explain-status
-```
 
 **Q4: For each query, did you see `Seq Scan` or `Index Scan`? Record what you found:**
 
@@ -118,13 +130,13 @@ npm run explain-status
 /orders/summary:        Seq Scan / Index Scan (circle one)
 ```
 
-**Q5: Now run the load test to see how this affects real traffic:**
+Type `\q` to exit the PostgreSQL shell, then run the load test:
 
 ```bash
 npm run loadtest
 ```
 
-Record the p99 latency for each endpoint:
+**Q5: Record the p99 latency for each endpoint:**
 
 | Endpoint                 | p99 Before Fix |
 | ------------------------ | -------------- |
@@ -146,23 +158,29 @@ Three endpoints, three different situations. Only two of them need an index. You
 
 **Why an index helps here:** `user_id` has high cardinality — there are 1,000 different user IDs. An index on `user_id` lets PostgreSQL jump directly to one user's orders without touching anyone else's.
 
-**What to do in `db/schema.sql`:**
-
-Add this line at the bottom:
-
-```sql
-CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);
-```
-
-Then apply it:
+Connect to the database and add the index yourself:
 
 ```bash
-npm run apply-fix
+psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
-Run `npm run explain-orders` again. You should now see `Index Scan` instead of `Seq Scan`.
+```sql
+CREATE INDEX idx_orders_user_id ON orders (user_id);
+```
 
-Run the load test. What happened to `/orders?user_id` latency?
+Now verify PostgreSQL is using it:
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
+```
+
+You should now see `Index Scan` instead of `Seq Scan`. Type `\q` to exit, then run the load test and watch Grafana:
+
+```bash
+npm run loadtest
+```
+
+What happened to `/orders?user_id` latency?
 
 ---
 
@@ -170,10 +188,9 @@ Run the load test. What happened to `/orders?user_id` latency?
 
 **The problem:** The product search filters by `category` AND `price_cents`. With no index, PostgreSQL scans every product for every search request.
 
-**Why a single-column index isn't enough:** If you only indexed `category`, PostgreSQL would jump to all electronics (maybe 80 products) but then scan all of them for the price range. A **composite index** on both columns together is more efficient — it covers both filters in one lookup.
+**Why a single-column index isn't enough:** If you only indexed `category`, PostgreSQL would jump to all electronics but then scan all of them for the price range. A **composite index** on both columns together is more efficient — it covers both filters in one lookup.
 
-**What order should the columns be in?**
-Put the equality filter first, the range filter second:
+**Column order matters:**
 
 ```sql
 (category, price_cents)  ✅ correct — equality first, range second
@@ -182,22 +199,23 @@ Put the equality filter first, the range filter second:
 
 ![Composite Index Diagram](assets/diagram-composite-index.svg)
 
-**What to do in `db/schema.sql`:**
-
-Add this line:
-
-```sql
-CREATE INDEX IF NOT EXISTS idx_products_category_price ON products (category, price_cents);
-```
-
-Apply it and verify:
+Connect to the database and add the index:
 
 ```bash
-npm run apply-fix
-npm run explain-products
+psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
-Look for `Index Scan using idx_products_category_price` in the output.
+```sql
+CREATE INDEX idx_products_category_price ON products (category, price_cents);
+```
+
+Verify it's being used:
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;
+```
+
+Look for `Index Scan using idx_products_category_price`. Type `\q` to exit, then run the load test again.
 
 ---
 
@@ -213,17 +231,19 @@ This is called **cardinality** — the number of distinct values in a column. Hi
 
 ![Cardinality Diagram](assets/diagram-cardinality.svg)
 
-**What to do:**
-
 Before adding anything, test what PostgreSQL actually decides:
 
 ```bash
-npm run explain-status
+psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
-Look at the output. If it's already doing a `Seq Scan` and the query is fast enough — you may not need an index at all. Adding one would slow down every INSERT and UPDATE for no real gain on reads.
+```sql
+EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;
+```
 
-**Q6: After running `npm run explain-status`, what did PostgreSQL decide to do? Do you think an index on `status` would help here? Why or why not?**
+Look at the output carefully. If PostgreSQL is already choosing a `Seq Scan` — adding an index would slow down every INSERT and UPDATE for no real gain on reads.
+
+**Q6: What did PostgreSQL decide to do? Do you think an index on `status` would help here? Why or why not?**
 
 ```
 Your answer:
@@ -232,6 +252,8 @@ Your answer:
 ```
 
 > 💡 **The lesson:** Adding an index is not always the answer. A senior engineer asks "will this index actually be used?" before adding it. EXPLAIN ANALYZE tells you the answer.
+
+Type `\q` to exit.
 
 ---
 
@@ -295,12 +317,12 @@ Your answer:
 
 ## Stuck?
 
-| Problem                                  | What to do                                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `npm run apply-fix` fails                | The indexes may already exist — that's fine, run the load test anyway                               |
-| Still seeing Seq Scan after adding index | Give PostgreSQL a moment to analyze the table: run `ANALYZE orders;` first                          |
-| Load test results look the same          | Make sure you ran `npm run apply-fix` before retesting                                              |
-| Want to see the full solution            | Open `db/fix.sql` — it has all three indexes with explanations of why the status index was left out |
+| Problem                                            | What to do                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| psql command not found                             | The psql client should be available in the container — try `which psql` to confirm                  |
+| Still seeing Seq Scan after adding index           | Run `ANALYZE orders;` inside psql first, then try EXPLAIN ANALYZE again                             |
+| Load test results look the same after adding index | Make sure you exited psql and reran the load test                                                   |
+| Want to see the full solution                      | Open `solution/fix.sql` — it has all indexes with explanations of why the status index was left out |
 
 ---
 

@@ -301,3 +301,102 @@ Here's a system. It's slow, failing, or behaving unexpectedly. No hints. No befo
 
 **What this means for Scenarios 1 and 2:**
 The current level of hand-holding in Scenarios 1 and 2 is correct for Crawling tier. Nothing needs to change. The scaffolding reduction happens in future scenarios — each tier should be built with progressively less guidance than the one before it.
+
+---
+
+## No Magic Fix Scripts
+
+Fix scripts — `npm run apply-fix`, `apply-fix.sh`, or any script that applies a fix automatically — are banned from all scenarios. Running a script that implements a fix teaches nothing. The learner didn't do anything. A script did it for them.
+
+**The rule:** every fix a learner applies must be typed by them directly. SQL goes into psql directly. Code changes go into the editor directly. The act of writing it is the learning.
+
+**What this means in practice:**
+
+Instead of:
+
+```bash
+npm run apply-fix
+```
+
+The scenario should say:
+
+```bash
+psql postgresql://postgres:postgres@postgres:5432/feedapp
+```
+
+Then have the learner type the SQL themselves:
+
+```sql
+CREATE INDEX idx_posts_created_at ON posts (created_at);
+```
+
+**Solution files:**
+`server.fixed.js` and `fix.sql` can remain in the repo as last-resort references but should be moved to a `solution/` folder and only mentioned in the Stuck table — never in the main exercise flow. They are not a step. They are a fallback for someone who has genuinely tried and is completely stuck.
+
+**Apply to all scenarios from Scenario 1 onwards.** Remove all `apply-fix` npm scripts and shell scripts from every scenario.
+
+---
+
+## EXPLAIN ANALYZE — Teaching Progression
+
+EXPLAIN ANALYZE is introduced in Scenario 1 and used more deeply in Scenario 2. It is not explicitly covered as its own dedicated scenario — it's treated as a standard diagnostic tool that learners pick up through repeated use.
+
+**The intended progression:**
+
+- **Scenario 1:** Introduced briefly. Learner runs it once to verify the index is being used. The output is explained for them.
+- **Scenario 2:** Used as the primary diagnostic tool across three queries. Learner reads the output themselves and draws conclusions.
+- **Scenario 3 onwards:** Referenced without explanation. "Run EXPLAIN ANALYZE and look for sequential scans" becomes a standard instruction with no hand-holding.
+- **Walking tier:** Assumed knowledge. Learner is expected to reach for it instinctively when a query feels slow.
+
+This is the scaffolding reduction principle applied to a specific tool. By the time a learner reaches the Walking tier, EXPLAIN ANALYZE should feel like second nature — not something that needs to be explained each time.
+
+---
+
+## Platform Assessment Layer — How the Questions Scale
+
+Every SCENARIO.md contains questions learners answer directly in the markdown file. This works for the Codespaces-only version. On a proper platform (LeetCode-style) these questions become the foundation of a full assessment layer.
+
+**What each question type becomes on a platform:**
+
+**Comprehension questions (Q1, Q2, Q3)** — text input fields that must be filled before the next step unlocks. Forces the learner to read and think before touching anything.
+
+**Observation questions (Q4, Q5)** — fields tied to actual load test results. The platform can cross-reference the learner's answer against the actual metrics from their environment.
+
+**Reflection questions (Q7, Q8, Q9)** — open-ended reasoning questions evaluated by AI. The AI checks whether the answer demonstrates genuine understanding or just pattern matching, and gives specific feedback on weak reasoning.
+
+**Why the questions must stay in the scenarios now:**
+Even before the platform is built, the questions serve their purpose — they slow the learner down and force them to think before acting. They're also the foundation the assessment layer will be built on. Removing them now would mean rebuilding that structure later.
+
+**The platform advantage:**
+The Codespaces-only version has no way to know if a learner skipped the questions and went straight to the fixes. A platform can enforce question completion, store answers for later review, show model answers after submission, and use AI evaluation on open-ended responses. That's what makes the platform meaningfully better than the markdown-in-Codespaces version — not the UI, but the accountability and feedback loop.
+
+---
+
+## Platform Vision — What We're Actually Building
+
+When we say "platform" we mean something in the same category as LeetCode, Codewars, NeetCode, and Boot.dev — a structured curriculum with progression, assessment, and a browser-based experience. But with one fundamental difference that makes it harder to build and more valuable to use.
+
+**How we compare to existing platforms:**
+
+LeetCode, Codewars, NeetCode — algorithm and data structure challenges. Code runs against test cases in a sandboxed browser environment. No running systems, no infrastructure, no real failure modes.
+
+Boot.dev — the closest reference point. Structured curriculum, progression through levels, real concepts taught through doing. Browser-based. Good audience overlap with what we're building.
+
+**The fundamental difference:**
+
+Every platform above runs your code against test cases or in a sandboxed environment. What we're building runs a **real Node.js server, a real PostgreSQL database, real Prometheus scraping real metrics, and real Grafana displaying real dashboards.** The learner is inside a live system watching it fail in real time and fixing it.
+
+That's not a sandboxed challenge. That's the job.
+
+**The infrastructure challenge this creates:**
+
+This is harder to build as a fully browser-contained platform. LeetCode can run a function against test cases on a small server. We need to spin up a full Docker Compose stack — app, database, Prometheus, Grafana — per learner, per session. That's a different infrastructure problem entirely.
+
+**How we're solving it now:**
+GitHub Codespaces handles the per-learner environment for free during the validation phase. Each learner gets their own cloud VM with the full stack running. No infrastructure to manage, no cost to us.
+
+**How the platform gets built later:**
+When the time comes to build a proper platform, the architecture decision is real — either replicate the Codespaces approach with our own cloud environments spun up per learner (expensive but authentic), or find a way to run lighter simulated environments in the browser (cheaper but loses some realism). That decision gets made after the curriculum is validated with real learners, not before.
+
+**The differentiator in one sentence:**
+Boot.dev teaches you concepts through structured exercises. We drop you into a live broken production system and make you fix it. That's what nobody else has built.

@@ -234,7 +234,7 @@ const db = new Pool({
 - [ ] Remove all `await db.end()` calls — you don't close a shared pool after each request
 - [ ] Remove the `await new Promise(resolve => setTimeout(resolve, 500))` line from the `/feed` route
 
-> 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after trying, open `src/server.fixed.js` to see the complete solution.
+> 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after genuinely trying, open `solution/server.fixed.js` to see the complete solution.
 
 Restart the server after saving:
 
@@ -258,19 +258,31 @@ What's the success rate now? Record it in the table in Step 4.
 
 **The fix in plain terms:** Add an index on `created_at` so PostgreSQL can jump straight to the most recent posts instead of scanning every row.
 
-Run this in your terminal:
+First, connect to the database:
 
 ```bash
-npm run apply-fix
+psql postgresql://postgres:postgres@postgres:5432/feedapp
 ```
 
-Now verify PostgreSQL is actually using the index:
+You're now inside the PostgreSQL shell. Run this to see the execution plan before adding the index:
 
-```bash
-npm run explain-query
+```sql
+EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;
 ```
 
-Look at the output. You're looking for `Index Scan` — that means PostgreSQL is using the index. If you saw `Seq Scan` before (sequential scan = reading every row), you'll now see `Index Scan`. That's the fix working.
+Look for `Seq Scan` — that's PostgreSQL reading every row. Now add the index:
+
+```sql
+CREATE INDEX idx_posts_created_at ON posts (created_at);
+```
+
+Run EXPLAIN ANALYZE again:
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;
+```
+
+You should now see `Index Scan` instead of `Seq Scan`. That's the fix working. Type `\q` to exit the PostgreSQL shell.
 
 Run the load test one final time and watch Grafana:
 
@@ -349,11 +361,12 @@ You didn't just read about these concepts. You watched them fail in real time an
 | Problem                                      | What to do                                                                                      |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Load test shows no errors after Fix 1        | Make sure you restarted the server: `npm run start`                                             |
-| `npm run apply-fix` fails                    | Run `npm run loadtest` anyway — the index may already exist                                     |
 | Grafana showing "No data"                    | Make sure you ran `npm run loadtest` first — panels only show data when traffic hits the server |
-| Grafana panels are empty after the load test | Change the time range to "Last 15 minutes" in the top right — you may have missed the window    |
+| Grafana panels are empty after the load test | Change the time range to "Last 15 minutes" in the top right                                     |
 | Can't find the dashboard in Grafana          | Click Dashboards in the left sidebar → Scenario 1 — The Single Server Problem                   |
-| Really stuck on the code fix                 | Open `src/server.fixed.js` — it has the full solution with comments                             |
+| psql command not found                       | The psql client should be available in the container — try `which psql` to confirm              |
+| Still seeing Seq Scan after adding index     | Run `ANALYZE posts;` inside psql and then try EXPLAIN ANALYZE again                             |
+| Really stuck on the code fix                 | Open `solution/server.fixed.js` — it has the full solution with comments                        |
 
 ---
 

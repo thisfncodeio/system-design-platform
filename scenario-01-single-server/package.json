@@ -7,8 +7,6 @@
     "start": "node src/server.js",
     "seed": "node db/seed.js",
     "loadtest": "node scripts/loadtest.js",
-    "apply-fix": "psql postgresql://postgres:postgres@postgres:5432/feedapp -f db/fix.sql",
-    "explain-query": "psql postgresql://postgres:postgres@postgres:5432/feedapp -c 'EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;'",
     "status": "node -e \"const {Pool} = require('pg'); const db = new Pool({host:'postgres',user:'postgres',password:'postgres',database:'feedapp'}); db.query('SELECT COUNT(*) FROM posts').then(r => { console.log('✅ Database ready. Posts in DB:', r.rows[0].count); db.end(); }).catch(() => { console.log('❌ Database not ready yet. Run: node scripts/wait-and-seed.js'); db.end(); })\""
   },
   "dependencies": {
