@@ -447,3 +447,38 @@ Every `server.js` and code file across all scenarios follows the same commenting
 - Notes explaining why an artificial delay or constraint exists
 
 The goal is code that reads like a real production codebase with just enough annotation for a non-JavaScript developer to follow along without losing the thread.
+
+---
+
+## Tradeoffs Before Solutions Principle
+
+Before any fix in any scenario, there must be a genuine tradeoff moment. Not "here's the problem, here's the fix" — but "here's the symptom, what are your options, what does each cost, and which one makes sense here and why?"
+
+The thought process before the solution is the real engineering skill. Knowing that a slow query needs an index is pattern matching. Knowing whether to add an index, add a cache, paginate differently, or restructure the query entirely — and being able to defend that choice — is engineering judgment. That's what we're building.
+
+**What this looks like in practice:**
+
+Every fix section should have a tradeoff moment before the fix is revealed. The learner reasons through options before reaching for a tool. Example from Scenario 1, Fix 2:
+
+> The feed query is slow. Before reaching for an index, consider your options:
+>
+> Option A — Add an index on created_at. Faster reads, slightly slower writes on every INSERT.
+> Option B — Cache the feed response. Don't hit the database at all for most requests. Faster, but data is stale until cache expires.
+> Option C — Paginate differently. Use cursor-based pagination that avoids the full sort entirely.
+>
+> For this system right now — which makes sense and why? What would change your answer if traffic was 100x higher?
+
+The learner must reason through this before the fix is shown. There's no single right answer — the right answer depends on context, and the learner needs to learn to ask "what context changes my answer?"
+
+**How this scales with the scaffolding reduction principle:**
+
+- **Crawling tier:** Options are provided. The learner reasons through them and picks one with justification.
+- **Walking tier:** The symptom is provided. The learner generates the options themselves, then reasons through them.
+- **Running tier:** A broken system is provided. The learner identifies the symptom, generates options, reasons through tradeoffs, and picks a solution — no prompting.
+- **Sprinting tier:** Nothing is provided except the system. The learner does everything.
+
+**What this prevents:**
+
+The "if you see X, do Y" reflex. That reflex is what keeps engineers at mid-level. A senior engineer doesn't reach for a tool because they recognize a pattern — they reason about whether that tool is the right one for this specific situation, at this specific scale, with these specific constraints. The tradeoff moment before every fix is what builds that habit.
+
+**This principle applies to all scenarios across both tracks.**
