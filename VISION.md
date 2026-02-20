@@ -280,3 +280,24 @@ Simplified in scope and complexity in service of learning. The concepts and tool
 
 **Target for Sprinting scenarios:**
 By the time a learner reaches the Sprinting tier (URL shortener, notification system, news feed, chat), the codebases should feel closer to real production systems — multiple interacting services, realistic data volumes, failure modes that aren't immediately obvious. The simplification scaffolding should be removed progressively as the learner advances.
+
+---
+
+## Scaffolding Reduction Principle
+
+Each tier of the curriculum should feel noticeably less guided than the one before it. The goal is to develop diagnostic instincts, not recipe-following. If every scenario gives learners the problem, the fix, and the command to run, they complete the scenario but don't develop the ability to figure things out on their own.
+
+**Crawling (Scenarios 1-4): High scaffolding**
+Tell them what to look for. Give them the before/after code. Give them the commands. Explain the concepts before they need them. The goal is to get the concept to land cleanly on a first exposure. A bootcamp grad who has never seen a production system fail needs this level of guidance or they'll abandon the scenario in frustration before the lesson lands.
+
+**Walking (Scenarios 5-7): Medium scaffolding**
+Tell them what the problem category is but not exactly where it is. Give them the diagnostic tools but not the diagnosis. Let them find the problem themselves before showing the fix.
+
+**Running (Scenarios 8-10): Low scaffolding**
+Here's a broken system. Here's the symptom. Figure out why and fix it. Concepts are referenced but not explained — the learner should know them by now. Hints exist but are buried, not upfront.
+
+**Sprinting (Scenarios 11-14): No scaffolding**
+Here's a system. It's slow, failing, or behaving unexpectedly. No hints. No before/after code. No commands handed to them. This is the job. The learner is expected to bring everything from the previous tiers and apply it independently.
+
+**What this means for Scenarios 1 and 2:**
+The current level of hand-holding in Scenarios 1 and 2 is correct for Crawling tier. Nothing needs to change. The scaffolding reduction happens in future scenarios — each tier should be built with progressively less guidance than the one before it.
