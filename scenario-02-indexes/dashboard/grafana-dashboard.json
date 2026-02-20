@@ -107,18 +107,90 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "rate(http_request_duration_ms_sum{route=\"/feed\"}[30s]) / rate(http_request_duration_ms_count{route=\"/feed\"}[30s])",
-          "legendFormat": "avg — /feed",
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_ms_bucket{route=\"/orders\"}[30s]))",
+          "legendFormat": "p99 — /orders (user history)",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "histogram_quantile(0.99, rate(http_request_duration_ms_bucket{route=\"/feed\"}[30s]))",
-          "legendFormat": "p99 — /feed",
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_ms_bucket{route=\"/products\"}[30s]))",
+          "legendFormat": "p99 — /products (search)",
           "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_ms_bucket{route=\"/orders/summary\"}[30s]))",
+          "legendFormat": "p99 — /orders/summary (admin)",
+          "refId": "C"
         }
       ],
-      "title": "Response Latency (ms) — watch this drop after each fix",
+      "title": "p99 Latency per Route (ms) — watch this change as you add indexes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 200 },
+              { "color": "red", "value": 1000 }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "rate(http_request_duration_ms_sum{route=\"/orders\"}[30s]) / rate(http_request_duration_ms_count{route=\"/orders\"}[30s])",
+          "legendFormat": "avg — /orders",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "rate(http_request_duration_ms_sum{route=\"/products\"}[30s]) / rate(http_request_duration_ms_count{route=\"/products\"}[30s])",
+          "legendFormat": "avg — /products",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "rate(http_request_duration_ms_sum{route=\"/orders/summary\"}[30s]) / rate(http_request_duration_ms_count{route=\"/orders/summary\"}[30s])",
+          "legendFormat": "avg — /orders/summary",
+          "refId": "C"
+        }
+      ],
+      "title": "Avg Latency per Route (ms)",
       "type": "timeseries"
     },
     {
@@ -157,8 +229,8 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "id": 3,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "single", "sort": "none" }
@@ -179,69 +251,16 @@
       ],
       "title": "Error Rate",
       "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 80 }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
-      "id": 4,
-      "options": {
-        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "process_resident_memory_bytes",
-          "legendFormat": "memory usage",
-          "refId": "A"
-        }
-      ],
-      "title": "Memory Usage",
-      "type": "timeseries"
     }
   ],
   "refresh": "5s",
   "schemaVersion": 38,
-  "tags": ["system-design", "scenario-01"],
+  "tags": ["system-design", "scenario-02"],
   "templating": { "list": [] },
   "time": { "from": "now-5m", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Scenario 1 — The Single Server Problem",
-  "uid": "scenario-01",
+  "title": "Scenario 2 — Indexes and Slow Queries",
+  "uid": "scenario-02",
   "version": 1
 }

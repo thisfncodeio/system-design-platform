@@ -13,9 +13,41 @@
 
 const express = require('express');
 const { Pool } = require('pg');
+const client = require('prom-client'); // Prometheus metrics library
 
 const app = express();
 app.use(express.json());
+
+// ======================================================
+// METRICS
+// ======================================================
+client.collectDefaultMetrics();
+
+const httpRequestsTotal = new client.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+});
+
+const httpRequestDuration = new client.Histogram({
+  name: 'http_request_duration_ms',
+  help: 'HTTP request duration in milliseconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [10, 50, 100, 200, 500, 1000, 2000, 5000],
+});
+
+// Middleware — runs before every route handler.
+// Records how long each request took and what status code it returned.
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const route = req.route ? req.route.path : req.path;
+    httpRequestsTotal.labels(req.method, route, res.statusCode).inc();
+    httpRequestDuration.labels(req.method, route, res.statusCode).observe(duration);
+  });
+  next(); // next() passes control to the next middleware or route handler
+});
 
 // Note: this is the FIXED pattern from Scenario 1 — one shared pool.
 // If you haven't done Scenario 1, this is how database connections
@@ -206,6 +238,15 @@ app.post('/orders', async (req, res) => {
     console.error('Error creating order:', err.message);
     res.status(500).json({ error: 'Something went wrong' });
   }
+});
+
+// ======================================================
+// METRICS ENDPOINT
+// Prometheus scrapes this every 5 seconds.
+// ======================================================
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
 });
 
 const PORT = process.env.PORT || 3000;

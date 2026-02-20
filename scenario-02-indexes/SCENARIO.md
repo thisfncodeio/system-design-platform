@@ -91,13 +91,13 @@ Your answer:
 
 ## Step 2 — See the Slow Queries in Action
 
-First, connect to the database and use EXPLAIN ANALYZE to see exactly what PostgreSQL is doing for each query. This is the most important diagnostic tool a backend engineer has.
+Connect to the database and use EXPLAIN ANALYZE to see exactly what PostgreSQL is doing for each query. This is the most important diagnostic tool a backend engineer has.
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
-You're now inside the PostgreSQL shell. Run each query and look at the output:
+Run each query and look at the output:
 
 **Query 1 — Filter by user_id:**
 
@@ -130,13 +130,13 @@ EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GRO
 /orders/summary:        Seq Scan / Index Scan (circle one)
 ```
 
-Type `\q` to exit the PostgreSQL shell, then run the load test:
+Type `\q` to exit, then run the load test:
 
 ```bash
 npm run loadtest
 ```
 
-**Q5: Record the p99 latency for each endpoint:**
+**Q5: Record the p99 latency for each endpoint before any fixes:**
 
 | Endpoint                 | p99 Before Fix |
 | ------------------------ | -------------- |
@@ -148,17 +148,33 @@ npm run loadtest
 
 ## Step 3 — Fix It
 
-Three endpoints, three different situations. Only two of them need an index. You decide which.
+Three endpoints, three different situations. Before you touch anything, reason through your options for each one.
 
 ---
 
-### Fix 1: Index on orders.user_id
+### Fix 1: Orders by user_id
 
-**The problem:** Every time a user loads their order history, PostgreSQL scans all 100,000 orders to find the ones belonging to that one user. The more orders in the database, the slower this gets — linearly.
+**The problem:** Every time a user loads their order history, PostgreSQL scans all 100,000 orders to find the ones belonging to that one user. The more orders in the database, the slower this gets.
 
-**Why an index helps here:** `user_id` has high cardinality — there are 1,000 different user IDs. An index on `user_id` lets PostgreSQL jump directly to one user's orders without touching anyone else's.
+**Before you change anything — consider your options:**
 
-Connect to the database and add the index yourself:
+> **Option A — Add an index on `orders.user_id`.** PostgreSQL jumps directly to one user's orders. Every INSERT to the orders table becomes slightly slower because the index has to be updated.
+>
+> **Option B — Paginate the results.** Instead of returning all of a user's orders at once, return 20 at a time. The query is still a sequential scan but returns faster because it stops earlier.
+>
+> **Option C — Cache the order history per user.** Store the result for each user_id in memory. Fast reads, but the cache goes stale when new orders arrive.
+
+**Q: Which option makes the most sense here and why? Consider that the orders table grows by 10,000 rows every day and `user_id` has 1,000 distinct values.**
+
+```
+Your answer:
+
+
+```
+
+**The fix:** Option A. With 1,000 distinct user IDs across 100,000 rows, `user_id` has high cardinality — an index will be used heavily and will dramatically reduce the rows PostgreSQL needs to touch per query. Pagination (B) helps response size but doesn't fix the scan cost. Caching (C) works but adds infrastructure complexity that isn't warranted before trying the simpler fix first.
+
+Connect to the database and add the index:
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/shopdb
@@ -168,13 +184,13 @@ psql postgresql://postgres:postgres@postgres:5432/shopdb
 CREATE INDEX idx_orders_user_id ON orders (user_id);
 ```
 
-Now verify PostgreSQL is using it:
+Verify PostgreSQL is using it:
 
 ```sql
 EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
 ```
 
-You should now see `Index Scan` instead of `Seq Scan`. Type `\q` to exit, then run the load test and watch Grafana:
+You should now see `Index Scan`. Type `\q` to exit, then run the load test and watch Grafana:
 
 ```bash
 npm run loadtest
@@ -184,22 +200,29 @@ What happened to `/orders?user_id` latency?
 
 ---
 
-### Fix 2: Composite Index on products
+### Fix 2: Product search by category and price
 
 **The problem:** The product search filters by `category` AND `price_cents`. With no index, PostgreSQL scans every product for every search request.
 
-**Why a single-column index isn't enough:** If you only indexed `category`, PostgreSQL would jump to all electronics but then scan all of them for the price range. A **composite index** on both columns together is more efficient — it covers both filters in one lookup.
+**Before you change anything — consider your options:**
 
-**Column order matters:**
+> **Option A — Add a single-column index on `category`.** PostgreSQL jumps to all products in a category, then scans those for the price range. Partial improvement.
+>
+> **Option B — Add a composite index on `(category, price_cents)`.** PostgreSQL jumps directly to the right category and price range in one lookup. More efficient than two separate indexes.
+>
+> **Option C — Add a composite index on `(price_cents, category)`.** Same columns, different order.
 
-```sql
-(category, price_cents)  ✅ correct — equality first, range second
-(price_cents, category)  ❌ less efficient — range first wastes the index
+**Q: What's the difference between Options B and C? Which one is correct for a query that filters by `category = 'electronics'` AND `price_cents BETWEEN 10000 AND 50000`? Why does column order matter?**
+
+```
+Your answer:
+
+
 ```
 
-![Composite Index Diagram](assets/diagram-composite-index.svg)
+**The fix:** Option B. The rule is equality filters before range filters. `category = 'electronics'` is an equality filter — PostgreSQL can jump straight to that group. `price_cents BETWEEN 10000 AND 50000` is a range filter — PostgreSQL then scans within that group. Putting the range filter first (Option C) means PostgreSQL can't efficiently use the index for the equality filter that follows.
 
-Connect to the database and add the index:
+![Composite Index Diagram](assets/diagram-composite-index.svg)
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/shopdb
@@ -219,19 +242,27 @@ Look for `Index Scan using idx_products_category_price`. Type `\q` to exit, then
 
 ---
 
-### Fix 3? Index on orders.status — Think Before You Add
+### Fix 3? Orders by status — think before you act
 
-**The situation:** The `/orders/summary` endpoint filters by `status`. Seems like an index would help, right?
+**The situation:** The `/orders/summary` endpoint filters by `status`. You've seen two sequential scans get fixed with indexes. Your instinct might be to add one here too.
 
-Not necessarily. Here's why:
+**Before you change anything — consider your options:**
 
-`status` only has 5 possible values across 100,000 rows. That means roughly 20,000 rows have `status = 'delivered'`. PostgreSQL looks at the data distribution and calculates: _"Is it faster to use the index and fetch 20,000 rows individually, or just scan the whole table?"_ Often it decides the full scan is actually faster for low-cardinality columns like this.
+> **Option A — Add an index on `orders.status`.** Might help reads. Will slow down every INSERT and UPDATE to the orders table because the index has to be maintained.
+>
+> **Option B — Don't add an index.** Accept the sequential scan. It may actually be the right choice depending on the data distribution.
+>
+> **Option C — Rewrite the query.** Instead of filtering by status at query time, maintain a separate summary table that gets updated when orders change status.
 
-This is called **cardinality** — the number of distinct values in a column. High cardinality (like `user_id` or `email`) = indexes help a lot. Low cardinality (like `status` or boolean columns) = indexes often don't help.
+**Q: `status` has 5 possible values across 100,000 rows. Roughly 20,000 rows match any given status. Does an index help when 20% of the table matches the filter? What would you need to know to decide between Options A, B, and C?**
 
-![Cardinality Diagram](assets/diagram-cardinality.svg)
+```
+Your answer:
 
-Before adding anything, test what PostgreSQL actually decides:
+
+```
+
+Before deciding, check what PostgreSQL actually does:
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/shopdb
@@ -241,9 +272,11 @@ psql postgresql://postgres:postgres@postgres:5432/shopdb
 EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;
 ```
 
-Look at the output carefully. If PostgreSQL is already choosing a `Seq Scan` — adding an index would slow down every INSERT and UPDATE for no real gain on reads.
+Look carefully at what PostgreSQL chose. If it's already doing a `Seq Scan` on a low-cardinality column like this, adding an index won't change that — PostgreSQL will look at the data distribution and decide the full scan is faster than fetching 20,000 scattered rows via an index.
 
-**Q6: What did PostgreSQL decide to do? Do you think an index on `status` would help here? Why or why not?**
+![Cardinality Diagram](assets/diagram-cardinality.svg)
+
+**Q6: What did PostgreSQL decide to do? Given what you know about cardinality, do you think adding an index on `status` would help? Would you add it?**
 
 ```
 Your answer:
@@ -251,7 +284,7 @@ Your answer:
 
 ```
 
-> 💡 **The lesson:** Adding an index is not always the answer. A senior engineer asks "will this index actually be used?" before adding it. EXPLAIN ANALYZE tells you the answer.
+> 💡 **The lesson:** The right answer here is probably to not add the index. That's a real engineering decision — recognizing when a tool doesn't fit the problem is just as important as knowing when it does.
 
 Type `\q` to exit.
 
@@ -259,7 +292,7 @@ Type `\q` to exit.
 
 ## Step 4 — Compare Your Results
 
-Run the load test one more time:
+Run the load test one final time:
 
 ```bash
 npm run loadtest
@@ -310,6 +343,8 @@ Your answer:
 **Cardinality determines whether an index is worth it.** High cardinality columns (user_id, email, product_id) benefit greatly from indexes. Low cardinality columns (status, boolean flags, country codes) often don't — PostgreSQL may ignore the index entirely.
 
 **Composite indexes cover multiple columns.** When you filter by two columns together, a composite index is more efficient than two separate indexes. Column order matters: equality filters before range filters.
+
+**Not adding an index is a valid decision.** You looked at the status column, reasoned through the cardinality, checked what PostgreSQL actually does, and decided an index wasn't worth it. That's exactly what a senior engineer does.
 
 **EXPLAIN ANALYZE is your best friend.** Never guess whether a query is slow or whether an index is being used. Run EXPLAIN ANALYZE and let PostgreSQL show you exactly what it's doing.
 

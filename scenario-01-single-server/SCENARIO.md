@@ -183,19 +183,33 @@ Your answer:
 
 ## Step 3 — Fix It
 
-You've diagnosed the problems. Now fix them. Two changes, in order.
-
-After each fix, restart the server and run the load test again to see the impact in both the terminal output and Grafana.
+You've diagnosed two problems. Before you fix either of them, think about your options.
 
 ---
 
 ### Fix 1: Connection Pooling
 
-**The problem in plain terms:** Every request creates a brand new pool with only 1 connection allowed and a 150ms timeout. When 100 requests arrive at once, 99 of them can't get a connection in time and fail immediately.
+**The problem:** Every request creates a brand new pool with only 1 connection allowed and a 150ms timeout. When 100 requests arrive at once, 99 of them can't get a connection in time and fail immediately.
 
-**The fix in plain terms:** Create one shared pool when the server starts, and reuse it for every request. This way connections stay open and ready — requests wait their turn instead of failing.
+**Before you change anything — consider your options:**
 
-**Here's the before and after so you know exactly what to change:**
+> **Option A — Connection pooling.** Create one shared pool when the server starts. Reuse connections across requests. Requests queue when the pool is busy rather than failing immediately.
+>
+> **Option B — Increase the per-request limit.** Keep creating a new pool per request but raise `max` to 100 and increase the timeout. More connections, less queueing.
+>
+> **Option C — Rate limit incoming requests.** Throttle how many requests hit the server at once so the connection limit is never reached.
+
+**Q: Which option fixes the root cause? Which ones just treat the symptom? What does each one cost?**
+
+```
+Your answer:
+
+
+```
+
+**The fix:** Option A. Options B and C treat symptoms — B creates 100 connections per request which is wasteful and will exhaust the database's connection limit fast. C limits traffic but doesn't fix the underlying inefficiency. Option A fixes the root cause: connections are expensive to open, so stop opening new ones for every request.
+
+**What to do in `src/server.js`:**
 
 Before (the problem):
 
@@ -227,14 +241,12 @@ const db = new Pool({
 });
 ```
 
-**What to do in `src/server.js`:**
-
 - [ ] Replace the `getDbConnection()` function with the shared `db` pool above (put it near the top of the file, after the imports)
 - [ ] In each route, replace `const db = getDbConnection()` with just `db` (it's already defined)
 - [ ] Remove all `await db.end()` calls — you don't close a shared pool after each request
 - [ ] Remove the `await new Promise(resolve => setTimeout(resolve, 500))` line from the `/feed` route
 
-> 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after genuinely trying, open `solution/server.fixed.js` to see the complete solution.
+> 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after genuinely trying, open `solution/server.fixed.js`.
 
 Restart the server after saving:
 
@@ -242,35 +254,49 @@ Restart the server after saving:
 npm run start
 ```
 
-Run the load test again and watch Grafana while it runs:
+Run the load test again and watch Grafana:
 
 ```bash
 npm run loadtest
 ```
 
-What's the success rate now? Record it in the table in Step 4.
-
 ---
 
 ### Fix 2: Add a Database Index
 
-**The problem in plain terms:** Every time `/feed` is called, PostgreSQL reads every row in the posts table to find the most recent ones. With 10,000 rows this is slow. In production with millions of rows, it would bring the system down.
+**The problem:** Every time `/feed` is called, PostgreSQL reads every row in the posts table to sort by `created_at`. With 10,000 rows this is slow. With millions of rows it would bring the system down.
 
-**The fix in plain terms:** Add an index on `created_at` so PostgreSQL can jump straight to the most recent posts instead of scanning every row.
+**Before you change anything — consider your options:**
 
-First, connect to the database:
+> **Option A — Add an index on `created_at`.** PostgreSQL jumps directly to the most recent posts instead of scanning every row. Reads get faster, but every INSERT now has to update the index too.
+>
+> **Option B — Cache the feed response.** Store the result in memory for 30 seconds. Most requests never hit the database at all. Fast, but users see stale data until the cache expires.
+>
+> **Option C — Limit the query differently.** Instead of sorting all posts and taking 20, redesign the query to avoid the full sort — for example cursor-based pagination.
+
+**Q: For this system right now — which makes the most sense and why? What would change your answer if this table had 10 million rows and 10,000 writes per second?**
+
+```
+Your answer:
+
+
+```
+
+**The fix:** Option A for now. The table is read-heavy and write volume is low — the cost of maintaining the index on writes is negligible compared to the read benefit. Caching (Option B) is a valid next step at higher scale but adds complexity that isn't warranted yet. Option C is premature optimization for a feed with only 10,000 posts.
+
+Connect to the database:
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/feedapp
 ```
 
-You're now inside the PostgreSQL shell. Run this to see the execution plan before adding the index:
+Check the execution plan before adding the index:
 
 ```sql
 EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;
 ```
 
-Look for `Seq Scan` — that's PostgreSQL reading every row. Now add the index:
+Look for `Seq Scan`. Now add the index:
 
 ```sql
 CREATE INDEX idx_posts_created_at ON posts (created_at);
@@ -282,21 +308,15 @@ Run EXPLAIN ANALYZE again:
 EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;
 ```
 
-You should now see `Index Scan` instead of `Seq Scan`. That's the fix working. Type `\q` to exit the PostgreSQL shell.
-
-Run the load test one final time and watch Grafana:
+You should now see `Index Scan`. Type `\q` to exit, then run the load test one final time:
 
 ```bash
 npm run loadtest
 ```
 
-Notice what changes in the Response Latency panel compared to the first two runs.
-
 ---
 
 ## Step 4 — Compare Your Results
-
-Fill this in with your actual numbers:
 
 | Run                   | Success Rate | p99 Latency | Req/sec |
 | --------------------- | ------------ | ----------- | ------- |
@@ -348,11 +368,13 @@ There are no wrong answers here. These are the exact questions a senior engineer
 
 **Indexes** are one of the highest-leverage tools available to a backend engineer. A missing index on a column you sort or filter by will work fine at small scale and silently become a crisis at large scale. Adding one can turn a seconds-long query into a milliseconds-long one.
 
+**Tradeoffs are real.** There was more than one way to fix each problem. The right answer depended on context — the scale of the data, the write volume, the complexity budget. That's engineering judgment. It gets sharper with practice.
+
 **Single points of failure** exist in every system. Identifying them is the first step to designing around them. You just identified three.
 
 **Grafana and Prometheus** are the industry standard for observability. You just used the same tools engineers use at companies of every size to diagnose production problems in real time.
 
-You didn't just read about these concepts. You watched them fail in real time and fixed them. That's the difference.
+You didn't just read about these concepts. You watched them fail in real time, reasoned through your options, and fixed them. That's the difference.
 
 ---
 
