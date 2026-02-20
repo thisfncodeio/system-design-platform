@@ -400,3 +400,50 @@ When the time comes to build a proper platform, the architecture decision is rea
 
 **The differentiator in one sentence:**
 Boot.dev teaches you concepts through structured exercises. We drop you into a live broken production system and make you fix it. That's what nobody else has built.
+
+---
+
+## Language Agnostic Principle
+
+The platform teaches system design concepts, not JavaScript. JavaScript is the vehicle — chosen because it's readable, widely known, and runs everywhere. But a developer coming from Python, Java, Ruby, Go, or any other backend language should be able to follow the code without being tripped up by JavaScript syntax they don't recognize.
+
+**What this means in practice:**
+
+- Scenarios never assume the learner knows JavaScript deeply
+- The system design concept is always the focus — the code is just how it's expressed
+- Any place where JavaScript syntax might confuse a non-JavaScript developer gets a brief inline comment explaining what it does
+- The fixes and concepts taught apply equally to any backend language and stack
+
+**This principle applies to all scenarios across both tracks.**
+
+---
+
+## Code Commenting Principle
+
+Every `server.js` and code file across all scenarios follows the same commenting standard:
+
+**Comment JavaScript-specific syntax** that a developer from another language might not recognize:
+
+- Destructuring assignment: `const { userId, content } = req.body`
+- The `next()` function in Express middleware
+- The `req.params`, `req.body`, `req.query` object shapes
+- npm package names that aren't self-explanatory (`pg`, `prom-client`)
+- The `async/await` pattern if used in a non-obvious way
+- Arrow functions used in non-obvious contexts
+
+**Do not comment universal backend concepts** that any backend developer already knows regardless of language:
+
+- What a 400, 404, or 500 status code means
+- What try/catch/finally does
+- What returning JSON means
+- What console.error does
+- What an if statement does
+- HTTP verbs (GET, POST, etc.)
+
+**Always keep:**
+
+- Section headers (`DATABASE CONNECTION`, `ROUTES`, `METRICS`, `START SERVER`)
+- Intentional problem comments — these are clues for the learner, not noise
+- Notes explaining why an artificial delay or constraint exists
+
+The goal is code that reads like a real production codebase with just enough annotation for a non-JavaScript developer to follow along without losing the thread.
