@@ -27,7 +27,7 @@ Traffic has been growing steadily. The team has already been through the fixes f
 
 Your tech lead sends you a message:
 
-> _"We've tuned everything we can tune. The server is just hitting its ceiling can't keep up with this many requests at once. We need to scale horizontally — add a second server and put a load balancer in front. The code shouldn't need to change, just the infrastructure."_
+> _"We've tuned everything we can tune. The server is just hitting its ceiling — it can't keep up with this many requests at once. We need to scale horizontally — add a second server and put a load balancer in front. The code shouldn't need to change, just the infrastructure."_
 
 Your job is to confirm the ceiling is real, understand what horizontal scaling means in practice, and make the change.
 

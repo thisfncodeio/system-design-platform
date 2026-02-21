@@ -11,12 +11,12 @@
     "status": "node -e \"const {Pool} = require('pg'); const db = new Pool({host:'postgres',user:'postgres',password:'postgres',database:'jobqueue'}); db.query('SELECT COUNT(*) FROM jobs').then(r => { console.log('✅ Database ready. Jobs in DB:', r.rows[0].count); db.end(); }).catch(() => { console.log('❌ Database not ready yet.'); db.end(); })\""
   },
   "dependencies": {
-    "autocannon": "^7.14.0",
     "express": "^4.18.2",
     "pg": "^8.11.3",
     "prom-client": "^15.1.0"
   },
   "devDependencies": {
+    "autocannon": "^7.14.0",
     "nodemon": "^3.0.0"
   }
 }

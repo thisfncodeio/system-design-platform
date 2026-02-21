@@ -31,18 +31,22 @@ async function seed() {
   console.log('📦 Running schema...');
   await db.query(schema);
 
-  const existing = await db.query('SELECT COUNT(*) FROM products');
-  if (parseInt(existing.rows[0].count) > 0) {
+  // Check orders specifically — that's the 500k row table that takes time to seed.
+  // Checking products alone isn't enough: products seed fast, and if the process
+  // was killed between the products INSERT and the orders INSERT, products would
+  // exist but orders would be empty. The next startup would silently skip seeding.
+  const existing = await db.query('SELECT COUNT(*) FROM orders');
+  if (parseInt(existing.rows[0].count) >= 500000) {
     console.log('✅ Database already seeded, skipping');
     await db.end();
     return;
   }
 
-  console.log('🌱 Seeding data...');
+  console.log('🌱 Seeding data (this takes 30–60 seconds for 500k orders)...');
   await db.query(seedData);
 
-  const count = await db.query('SELECT COUNT(*) FROM products');
-  console.log(`✅ Seeded ${count.rows[0].count} products`);
+  const count = await db.query('SELECT COUNT(*) FROM orders');
+  console.log(`✅ Seeded 5,000 products and ${count.rows[0].count} orders`);
   await db.end();
 }
 

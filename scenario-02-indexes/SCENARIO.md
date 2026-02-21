@@ -125,9 +125,9 @@ EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GRO
 **Q4: For each query, did you see `Seq Scan` or `Index Scan`? Record what you found:**
 
 ```
-/orders?user_id:        Seq Scan / Index Scan (circle one)
-/products?category:     Seq Scan / Index Scan (circle one)
-/orders/summary:        Seq Scan / Index Scan (circle one)
+/orders?user_id:        Seq Scan / Index Scan  ← write which one
+/products?category:     Seq Scan / Index Scan  ← write which one
+/orders/summary:        Seq Scan / Index Scan  ← write which one
 ```
 
 Type `\q` to exit, then run the load test:
