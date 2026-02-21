@@ -1,6 +1,7 @@
 const express = require("express");
 const { Pool } = require("pg");
 const client = require("prom-client"); // Prometheus metrics library
+const { artificialDatabaseTableLatency } = require("../scripts/simulation");
 
 const app = express();
 app.use(express.json()); // Parse JSON bodies from incoming requests into req.body object
@@ -77,8 +78,6 @@ app.post("/posts", async (req, res) => {
 
 app.get("/feed", async (req, res) => {
   try {
-    // FIX 2: Index on created_at means PostgreSQL jumps straight to the most
-    // recent rows instead of scanning the whole table. The 500ms sleep is gone.
     const result = await db.query(`
       SELECT
         posts.id,
@@ -91,6 +90,9 @@ app.get("/feed", async (req, res) => {
       ORDER BY posts.created_at DESC
       LIMIT 20
     `);
+
+    await artificialDatabaseTableLatency(db, "posts"); // ARTIFICIAL LATENCY — DO NOT MODIFY
+
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching feed:", err.message);

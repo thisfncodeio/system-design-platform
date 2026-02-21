@@ -11,6 +11,7 @@
 const express = require("express"); // Express framework
 const { Pool } = require("pg"); // PostgreSQL client library
 const client = require("prom-client"); // Prometheus metrics library
+const { artificialDatabaseTableLatency } = require("../scripts/simulation");
 
 const app = express(); // Create a new Express server
 app.use(express.json()); // Parse JSON bodies from incoming requests into req.body object
@@ -138,9 +139,7 @@ app.get("/feed", async (req, res) => {
       LIMIT 20
     `);
 
-    // Simulates the slowness of a sequential scan on a large table
-    // In production, a missing index on created_at would cause this naturally.
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await artificialDatabaseTableLatency(db, "posts"); // ARTIFICIAL LATENCY — DO NOT MODIFY
 
     // Return the feed
     res.json(result.rows);

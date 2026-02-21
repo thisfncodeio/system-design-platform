@@ -246,7 +246,6 @@ const db = new Pool({
 - [ ] Replace the `getDbConnection()` function with the shared `db` pool above (put it near the top of the file, after the imports)
 - [ ] In each route, replace `const db = getDbConnection()` with just `db` (it's already defined)
 - [ ] Remove all `await db.end()` calls — you don't close a shared pool after each request
-- [ ] Remove the `await new Promise(resolve => setTimeout(resolve, 500))` line from the `/feed` route
 
 > 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after genuinely trying, open `solution/server.fixed.js`.
 

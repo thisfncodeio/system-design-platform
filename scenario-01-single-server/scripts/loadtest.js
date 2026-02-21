@@ -24,35 +24,40 @@ const instance = autocannon(
       return;
     }
 
-    const total = results.requests.total;
+      const total = results.requests.total;
     const non2xx = results["non2xx"] || 0;
-    const successRate = total > 0 ? (((total - non2xx) / total) * 100).toFixed(1) : 0;
+    const succeeded = total - non2xx;
+    const successRate = total > 0 ? ((succeeded / total) * 100).toFixed(1) : 0;
 
     console.log("");
     console.log("=".repeat(60));
     console.log("RESULTS");
     console.log("=".repeat(60));
-    console.log(`Requests completed:  ${total}`);
-    console.log(`Successful (2xx):    ${total - non2xx}`);
-    console.log(`Failed (non-2xx):    ${non2xx}`);
-    console.log(`Success rate:        ${successRate}%`);
-    console.log(`Timeouts:            ${results.timeouts}`);
-    console.log("");
-    console.log("Response times:");
-    console.log(`  Average:  ${results.latency.average}ms`);
-    console.log(`  p50:      ${results.latency.p50}ms`);
-    console.log(`  p99:      ${results.latency.p99}ms`);
-    console.log(`  Max:      ${results.latency.max}ms`);
-    console.log("");
 
+    console.log("");
+    console.log("  Did requests succeed?");
+    console.log(`    ${succeeded} of ${total} requests got a valid response`);
+    console.log(`    ${non2xx} failed (server returned an error or timed out)`);
+    console.log(`    Success rate: ${successRate}%`);
+
+    console.log("");
+    console.log("  How long did requests take?");
+    console.log(`    Avg: ${results.latency.average}ms  — the typical response time`);
+    console.log(`    p50: ${results.latency.p50}ms  — half of users waited at least this long`);
+    console.log(`    p99: ${results.latency.p99}ms  — 1 in 100 users waited this long (the worst experience)`);
+    console.log(`    Max: ${results.latency.max}ms  — the slowest single request`);
+
+    console.log("");
     if (non2xx > total * 0.1 || results.latency.p99 > 2000) {
-      console.log("🔴 The system is failing under this load.");
-      console.log(`   ${non2xx} out of ${total} requests failed.`);
-      console.log("   Open server.js and find out why.");
+      console.log("  🔴 The system is failing under this load.");
+      console.log(`     ${non2xx} out of ${total} requests crashed or timed out.`);
+      console.log("     This is what a broken production server looks like.");
+      console.log("     Open SCENARIO.md and start diagnosing.");
     } else if (non2xx > 0 || results.latency.p99 > 500) {
-      console.log("🟡 Degrading under load. Some requests failing.");
+      console.log("  🟡 Getting there — still some failures or slow responses.");
+      console.log("     Check if both fixes are applied.");
     } else {
-      console.log("🟢 Looking good! The fixes are working.");
+      console.log("  🟢 The system is handling the load. Both fixes are working.");
     }
   },
 );
