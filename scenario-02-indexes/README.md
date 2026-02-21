@@ -15,9 +15,10 @@ Three endpoints are getting slow as the database grows. You'll use EXPLAIN ANALY
 
 1. Click the green **Code** button above
 2. Select the **Codespaces** tab
-3. Click **Create codespace on main**
-4. Wait ~2 minutes for the environment to build
-5. When VS Code opens, follow **SCENARIO.md**
+3. Click **New codespace**
+4. Under **Dev container configuration**, select **Scenario 2 — Indexes and Slow Queries**
+5. Click **Create codespace** and wait ~2 minutes for the environment to build
+6. When VS Code opens, follow **SCENARIO.md**
 
 No installs. No setup. Everything runs in your browser.
 
@@ -40,6 +41,6 @@ src/server.js       ← The backend with three slow queries
 SCENARIO.md         ← Your guided walkthrough. Start here.
 db/schema.sql       ← Database schema — no indexes yet
 db/seed.js          ← Creates 1,000 users, 500 products, 100,000 orders
-db/fix.sql          ← The solution — two indexes with explanations
+solution/fix.sql    ← The solution — two indexes with explanations. Don't peek until you've tried.
 scripts/loadtest.js ← Tests all three endpoints
 ```

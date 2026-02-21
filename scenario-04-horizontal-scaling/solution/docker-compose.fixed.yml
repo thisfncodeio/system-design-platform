@@ -1,0 +1,96 @@
+# SOLUTION: Two app servers + nginx load balancer
+#
+# What changed from docker-compose.yml:
+#   - app: DB_POOL_MAX added (10 → 5), SERVER_ID already set
+#   - app2 added as a second server (same code, different SERVER_ID)
+#   - nginx added as the load balancer in front of both on port 8080
+#   - DB_POOL_MAX set to 5 on each server — share the connection budget
+#   - prometheus now scrapes both app servers
+#
+# The load test now targets port 8080 (nginx) not 3000 (app directly)
+
+services:
+  app:
+    build: .
+    # No ports — nginx is the entry point. App servers should not be
+    # directly accessible once a load balancer is in front of them.
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: catalogdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_POOL_MAX: 5
+      SERVER_ID: app
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app2:
+    build: .
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: catalogdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_POOL_MAX: 5
+      SERVER_ID: app2
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./solution/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+      - app2
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./dashboard/prometheus.fixed.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - app
+      - app2
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3002:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - ./dashboard/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./dashboard/grafana-dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ./dashboard/grafana-dashboard.json:/var/lib/grafana/dashboards/scenario-04.json
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:
+  grafana_data:

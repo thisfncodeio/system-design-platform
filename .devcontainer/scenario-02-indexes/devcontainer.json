@@ -13,7 +13,7 @@
     },
     "3002": {
       "label": "Grafana Dashboard",
-      "onAutoForward": "openBrowser"
+      "onAutoForward": "notify"
     },
     "9090": {
       "label": "Prometheus",

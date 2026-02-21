@@ -1,0 +1,22 @@
+{
+  "name": "scenario-04-horizontal-scaling",
+  "version": "1.0.0",
+  "description": "Scenario 4: Horizontal Scaling — product catalog API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node scripts/wait-and-seed.js",
+    "loadtest": "node scripts/loadtest.js",
+    "status": "node -e \"const {Pool} = require('pg'); const db = new Pool({host:'postgres',user:'postgres',password:'postgres',database:'catalogdb'}); db.query('SELECT COUNT(*) FROM orders').then(r => { console.log('Orders in DB:', r.rows[0].count, r.rows[0].count >= 500000 ? '✅ Ready' : '⏳ Still seeding...'); db.end(); }).catch(() => { console.log('❌ Database not ready yet.'); db.end(); })\""
+  },
+  "dependencies": {
+    "autocannon": "^7.14.0",
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "prom-client": "^15.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

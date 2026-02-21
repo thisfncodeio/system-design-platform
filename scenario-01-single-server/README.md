@@ -24,7 +24,9 @@ Make sure you're on the main page of this repository at github.com. You should s
 
 1. Click the green **Code** button near the top right of the page
 2. Click the **Codespaces** tab in the dropdown that appears
-3. Click **Create codespace on main**
+3. Click **New codespace**
+4. Under **Dev container configuration**, select **Scenario 1 — The Single Server Problem**
+5. Click **Create codespace**
 
 It will show a loading screen for about 2 minutes while it builds your environment. This is normal.
 
@@ -63,13 +65,13 @@ When you're done, you can close the browser tab. Your Codespace will pause autom
 ## Files in This Project
 
 ```
-src/server.js          ← The broken backend. You'll work in here.
-src/server.fixed.js    ← The solution. Don't peek until you've tried.
-SCENARIO.md            ← Your guided walkthrough. Start here.
-db/schema.sql          ← Database schema
-db/seed.js             ← Populates the database with test data
-db/fix.sql             ← The index fix (used in Step 3 of the scenario)
-scripts/loadtest.js    ← The load test
+src/server.js              ← The broken backend. You'll work in here.
+SCENARIO.md                ← Your guided walkthrough. Start here.
+db/schema.sql              ← Database schema
+db/seed.js                 ← Populates the database with test data
+scripts/loadtest.js        ← The load test
+solution/server.fixed.js   ← The solution. Don't peek until you've tried.
+solution/fix.sql           ← The index fix. Same rule — try it yourself first.
 ```
 
 ---

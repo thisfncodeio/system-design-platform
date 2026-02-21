@@ -64,6 +64,8 @@ Everything is already running. You don't need to install anything.
 | Grafana Dashboard | Port 3002 | Live metrics — watch this during load tests |
 | Prometheus        | Port 9090 | Collects metrics from the app               |
 
+The server runs under **nodemon** — a standard Node.js dev tool that watches your source files and automatically restarts the server when you save a change. You'll see this in action when you fix `server.js` in Step 3.
+
 Open a terminal with **Ctrl+`** (or Terminal → New Terminal in the menu).
 
 ---
@@ -248,11 +250,7 @@ const db = new Pool({
 
 > 💡 **Stuck?** Check that you moved the Pool to the top level of the file, not inside a function. If you're still stuck after genuinely trying, open `solution/server.fixed.js`.
 
-Restart the server after saving:
-
-```bash
-npm run start
-```
+Save the file. nodemon is running as the dev server — it detects the change and restarts automatically within a couple of seconds. Watch the terminal output for the restart confirmation.
 
 Run the load test again and watch Grafana:
 
@@ -299,7 +297,7 @@ EXPLAIN ANALYZE SELECT * FROM posts ORDER BY created_at DESC LIMIT 20;
 Look for `Seq Scan`. Now add the index:
 
 ```sql
-CREATE INDEX idx_posts_created_at ON posts (created_at);
+CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts (created_at DESC);
 ```
 
 Run EXPLAIN ANALYZE again:
@@ -382,7 +380,7 @@ You didn't just read about these concepts. You watched them fail in real time, r
 
 | Problem                                      | What to do                                                                                      |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Load test shows no errors after Fix 1        | Make sure you restarted the server: `npm run start`                                             |
+| Load test shows no errors after Fix 1        | Check the terminal — nodemon should have restarted automatically when you saved the file        |
 | Grafana showing "No data"                    | Make sure you ran `npm run loadtest` first — panels only show data when traffic hits the server |
 | Grafana panels are empty after the load test | Change the time range to "Last 15 minutes" in the top right                                     |
 | Can't find the dashboard in Grafana          | Click Dashboards in the left sidebar → Scenario 1 — The Single Server Problem                   |

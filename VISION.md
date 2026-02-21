@@ -42,10 +42,10 @@ Each scenario only uses concepts introduced in previous ones. The separation bet
 
 **Crawling — understand how one server works and why it breaks**
 
-1. ✅ Single server + database (BUILT)
-2. ✅ Indexes and slow queries (BUILT)
-3. Connection pooling
-4. Horizontal scaling — what breaks when you add a second server
+1. ✅ Single server + database (BUILT) — social feed app
+2. ✅ Indexes and slow queries (BUILT) — e-commerce shop
+3. ✅ Connection pooling (BUILT) — job queue API
+4. ✅ Horizontal scaling (BUILT) — product catalog API
 
 **Walking — learn to scale a single system** 5. Caching with Redis 6. Load balancing + stateless servers 7. Database replication and read replicas
 
@@ -115,6 +115,7 @@ Sprinting scenarios use a different format — open-ended design challenges with
 
 - **Runtime:** GitHub Codespaces (browser-based VS Code, no local setup)
 - **App:** Node.js + Express
+- **Dev server:** nodemon (auto-restarts on file save, same as real development workflow)
 - **Database:** PostgreSQL
 - **Metrics:** Prometheus + Grafana
 - **Load testing:** autocannon
@@ -124,10 +125,13 @@ Sprinting scenarios use a different format — open-ended design challenges with
 
 ## Current Status
 
-- Track 1, Scenario 1 is built and live in Codespaces
-- Track 1, Scenario 2 is built, ready to push to monorepo
+- Track 1, Crawling stage (Scenarios 1–4) is complete
+- Scenario 1: social feed app — connection pooling, indexes, single point of failure
+- Scenario 2: e-commerce shop — query planning, cardinality, EXPLAIN ANALYZE, composite indexes
+- Scenario 3: job queue API — pool sizing, connection timeout, PostgreSQL connection ceiling
+- Scenario 4: product catalog API — CPU ceiling, horizontal scaling, nginx load balancer, pool budget split
 - Testing with real learners is the immediate next step
-- Web interface comes after 2-3 scenarios are validated with real learners
+- Walking stage (Scenarios 5–7) is next to build after learner feedback on Crawling
 
 ---
 
@@ -337,7 +341,29 @@ CREATE INDEX idx_posts_created_at ON posts (created_at);
 
 ---
 
-## EXPLAIN ANALYZE — Teaching Progression
+## Scenario App Choices and Narrative Bridges
+
+Each scenario uses a distinct app so learners aren't just seeing the same codebase with different problems. The app is chosen to make the scenario's core problem feel natural and realistic.
+
+**Scenario 1 — Social feed app**
+A Twitter-like feed with users and posts. Justification: every bootcamp grad has built something like this. The broken pool and missing index feel immediately real.
+
+**Scenario 2 — E-commerce shop**
+Products, categories, orders. Justification: familiar domain, naturally write-heavy, index problems on category and price_cents feel authentic.
+
+**Scenario 3 — Job queue API**
+Background job processing (image resize, email send, report generation). Justification: write-heavy, high concurrency, makes pool exhaustion feel earned. Workers competing for jobs via `SELECT FOR UPDATE SKIP LOCKED` is a real production pattern.
+
+**Scenario 4 — Product catalog API**
+Product listings and sales reports. Justification: read-heavy with a CPU-intensive aggregation endpoint (`/report`) that saturates a single server under load. Pool and indexes are correct — the bottleneck is pure throughput.
+
+**Narrative bridges between scenarios (preserve these):**
+
+Scenario 3 → 4: The learner discovers PostgreSQL's `max_connections` ceiling at the end of Scenario 3. The natural question — "what if I add more servers?" — is planted but not answered. Scenario 4 opens with that answer.
+
+Scenario 4 → 5: The learner ends Scenario 4 with Q9 — "if a user's session lives on app1's memory, what happens when nginx routes their next request to app2?" That question has no solution in Scenario 4. Scenario 5 (Redis) is where the shared store answer lives.
+
+Scenario 5 → 6: Caching solves the shared data problem but introduces cache invalidation complexity. The learner ends Scenario 5 knowing that stateless design — not just caching — is the real answer. Scenario 6 covers stateless servers properly.
 
 EXPLAIN ANALYZE is introduced in Scenario 1 and used more deeply in Scenario 2. It is not explicitly covered as its own dedicated scenario — it's treated as a standard diagnostic tool that learners pick up through repeated use.
 

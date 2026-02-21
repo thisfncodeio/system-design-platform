@@ -50,6 +50,13 @@ function randomBetween(min, max) {
 async function seed() {
   console.log('Seeding database...\n');
 
+  const existing = await db.query('SELECT COUNT(*) FROM orders');
+  if (parseInt(existing.rows[0].count) > 0) {
+    console.log('✅ Database already seeded. Skipping.');
+    await db.end();
+    return;
+  }
+
   // Users
   console.log(`Creating ${USERS} users...`);
   const userIds = [];

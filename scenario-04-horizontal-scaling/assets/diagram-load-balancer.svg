@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="'Segoe UI', Arial, sans-serif">
+  <rect width="800" height="400" fill="#f8f9ff" rx="16"/>
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">How nginx Distributes Traffic</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">Round-robin: request 1 → server 1, request 2 → server 2, request 3 → server 1...</text>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#90b4f5"/>
+    </marker>
+    <marker id="garr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4caf50"/>
+    </marker>
+    <marker id="oarr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#e67e22"/>
+    </marker>
+  </defs>
+
+  <!-- Users -->
+  <text x="72" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">Users</text>
+  <circle cx="40" cy="120" r="14" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="40" y="125" text-anchor="middle" font-size="13">👤</text>
+  <circle cx="72" cy="135" r="14" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="72" y="140" text-anchor="middle" font-size="13">👤</text>
+  <circle cx="104" cy="120" r="14" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="104" y="125" text-anchor="middle" font-size="13">👤</text>
+  <text x="72" y="162" text-anchor="middle" font-size="9" fill="#888">all hit port 8080</text>
+
+  <!-- Arrow users to nginx -->
+  <line x1="118" y1="128" x2="220" y2="190" stroke="#90b4f5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <line x1="118" y1="135" x2="220" y2="205" stroke="#90b4f5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <line x1="118" y1="128" x2="220" y2="220" stroke="#90b4f5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- nginx -->
+  <rect x="222" y="165" width="150" height="90" fill="#dce8ff" rx="10" stroke="#5b8def" stroke-width="2.5"/>
+  <text x="297" y="196" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a3a7a">⚖️ nginx</text>
+  <text x="297" y="214" text-anchor="middle" font-size="10" fill="#555">port 8080</text>
+  <text x="297" y="230" text-anchor="middle" font-size="9" fill="#555">round-robin load balancer</text>
+  <text x="297" y="246" text-anchor="middle" font-size="9" fill="#555">upstream: app1, app2</text>
+
+  <!-- Arrows nginx to servers -->
+  <line x1="372" y1="195" x2="480" y2="155" stroke="#4caf50" stroke-width="2.5" marker-end="url(#garr)"/>
+  <text x="430" y="162" text-anchor="middle" font-size="9" fill="#4caf50">req 1, 3, 5...</text>
+
+  <line x1="372" y1="225" x2="480" y2="265" stroke="#e67e22" stroke-width="2.5" marker-end="url(#oarr)"/>
+  <text x="430" y="258" text-anchor="middle" font-size="9" fill="#e67e22">req 2, 4, 6...</text>
+
+  <!-- Server 1 -->
+  <rect x="482" y="90" width="150" height="130" fill="#d4edda" rx="10" stroke="#4caf50" stroke-width="2"/>
+  <text x="557" y="118" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🖥️ app1</text>
+  <text x="557" y="135" text-anchor="middle" font-size="10" fill="#555">port 3000</text>
+  <rect x="496" y="145" width="122" height="20" fill="#8fd6a8" rx="4"/>
+  <text x="557" y="159" text-anchor="middle" font-size="9" fill="#1a7a3c">pool: max 5</text>
+  <rect x="496" y="169" width="122" height="20" fill="#8fd6a8" rx="4"/>
+  <text x="557" y="183" text-anchor="middle" font-size="9" fill="#1a7a3c">handles odd requests</text>
+  <text x="557" y="208" text-anchor="middle" font-size="9" fill="#888">SERVER_ID: app1</text>
+
+  <!-- Server 2 -->
+  <rect x="482" y="250" width="150" height="130" fill="#d4edda" rx="10" stroke="#4caf50" stroke-width="2"/>
+  <text x="557" y="278" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🖥️ app2</text>
+  <text x="557" y="295" text-anchor="middle" font-size="10" fill="#555">port 3000</text>
+  <rect x="496" y="305" width="122" height="20" fill="#8fd6a8" rx="4"/>
+  <text x="557" y="319" text-anchor="middle" font-size="9" fill="#1a7a3c">pool: max 5</text>
+  <rect x="496" y="329" width="122" height="20" fill="#8fd6a8" rx="4"/>
+  <text x="557" y="343" text-anchor="middle" font-size="9" fill="#1a7a3c">handles even requests</text>
+  <text x="557" y="368" text-anchor="middle" font-size="9" fill="#888">SERVER_ID: app2</text>
+
+  <!-- Both to DB -->
+  <line x1="634" y1="155" x2="682" y2="210" stroke="#4caf50" stroke-width="2" marker-end="url(#garr)"/>
+  <line x1="634" y1="315" x2="682" y2="260" stroke="#4caf50" stroke-width="2" marker-end="url(#garr)"/>
+
+  <!-- DB -->
+  <rect x="684" y="175" width="100" height="120" fill="#f0fff4" rx="10" stroke="#4caf50" stroke-width="2"/>
+  <text x="734" y="200" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">🗄️ DB</text>
+  <text x="734" y="218" text-anchor="middle" font-size="9" fill="#555">max_connections</text>
+  <text x="734" y="232" text-anchor="middle" font-size="9" fill="#555">= 100</text>
+  <text x="734" y="252" text-anchor="middle" font-size="9" fill="#1a7a3c">app1: 5 conns</text>
+  <text x="734" y="266" text-anchor="middle" font-size="9" fill="#1a7a3c">app2: 5 conns</text>
+  <text x="734" y="282" text-anchor="middle" font-size="9" fill="#1a7a3c">total: 10 ✓</text>
+
+  <!-- Bottom -->
+  <rect x="20" y="370" width="760" height="22" fill="#e8f4fd" rx="6"/>
+  <text x="400" y="385" text-anchor="middle" font-size="11" fill="#1a5276">The app servers don't know about each other — they just handle requests. nginx is the only thing that knows about both.</text>
+</svg>

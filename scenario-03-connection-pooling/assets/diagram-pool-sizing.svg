@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="800" height="480" fill="#f8f9ff" rx="16"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">Pool Sizing: Getting the Numbers Right</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">Both extremes cause problems. The right number depends on your traffic and query speed.</text>
+
+  <!-- ====== TOO SMALL ====== -->
+  <rect x="20" y="72" width="232" height="340" fill="#fff0f0" rx="12" stroke="#ffcccc" stroke-width="2"/>
+  <text x="136" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#cc3333">❌ Too Small</text>
+  <text x="136" y="114" text-anchor="middle" font-size="10" fill="#888">max: 3, timeout: 200ms</text>
+
+  <!-- Pool with 3 slots -->
+  <rect x="60" y="124" width="152" height="110" fill="#ffdddd" rx="8" stroke="#ff8080" stroke-width="1.5"/>
+  <text x="136" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc3333">Pool (3 connections)</text>
+  <rect x="70" y="150" width="132" height="22" fill="#ff8080" rx="4"/>
+  <text x="136" y="165" text-anchor="middle" font-size="10" fill="#fff">conn 1 — in use</text>
+  <rect x="70" y="177" width="132" height="22" fill="#ff8080" rx="4"/>
+  <text x="136" y="192" text-anchor="middle" font-size="10" fill="#fff">conn 2 — in use</text>
+  <rect x="70" y="204" width="132" height="22" fill="#ff8080" rx="4"/>
+  <text x="136" y="219" text-anchor="middle" font-size="10" fill="#fff">conn 3 — in use</text>
+
+  <!-- Queue -->
+  <text x="136" y="252" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc3333">Queue (47 requests waiting)</text>
+  <rect x="60" y="258" width="132" height="18" fill="#ffdddd" rx="3" stroke="#ff8080" stroke-width="1"/>
+  <text x="126" y="271" text-anchor="middle" font-size="9" fill="#cc3333">request 4... ⏳ 180ms</text>
+  <rect x="60" y="279" width="132" height="18" fill="#ffdddd" rx="3" stroke="#ff8080" stroke-width="1"/>
+  <text x="126" y="292" text-anchor="middle" font-size="9" fill="#cc3333">request 5... ⏳ 160ms</text>
+  <rect x="60" y="300" width="132" height="18" fill="#ffdddd" rx="3" stroke="#ff8080" stroke-width="1"/>
+  <text x="126" y="313" text-anchor="middle" font-size="9" fill="#cc3333">request 6... ⏳ 140ms</text>
+  <text x="136" y="338" text-anchor="middle" font-size="12" fill="#cc3333">⋮  44 more</text>
+
+  <rect x="32" y="358" width="208" height="46" fill="#ffb3b3" rx="6"/>
+  <text x="136" y="374" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc0000">Result: timeout errors 💥</text>
+  <text x="136" y="389" text-anchor="middle" font-size="10" fill="#cc0000">200ms expires before any</text>
+  <text x="136" y="402" text-anchor="middle" font-size="10" fill="#cc0000">connection frees up</text>
+
+  <!-- ====== JUST RIGHT ====== -->
+  <rect x="284" y="72" width="232" height="340" fill="#f0fff4" rx="12" stroke="#b3f0c8" stroke-width="2"/>
+  <text x="400" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7a3c">✅ Right Size</text>
+  <text x="400" y="114" text-anchor="middle" font-size="10" fill="#888">max: 10, timeout: 5000ms</text>
+
+  <!-- Pool with 10 slots -->
+  <rect x="310" y="124" width="180" height="192" fill="#d4edda" rx="8" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="400" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a7a3c">Pool (10 connections)</text>
+
+  <rect x="318" y="150" width="164" height="18" fill="#4caf50" rx="4"/>
+  <text x="400" y="163" text-anchor="middle" font-size="9" fill="#fff">conn 1 — in use</text>
+  <rect x="318" y="172" width="164" height="18" fill="#4caf50" rx="4"/>
+  <text x="400" y="185" text-anchor="middle" font-size="9" fill="#fff">conn 2 — in use</text>
+  <rect x="318" y="194" width="164" height="18" fill="#4caf50" rx="4"/>
+  <text x="400" y="207" text-anchor="middle" font-size="9" fill="#fff">conn 3 — in use</text>
+  <rect x="318" y="216" width="164" height="18" fill="#4caf50" rx="4"/>
+  <text x="400" y="229" text-anchor="middle" font-size="9" fill="#fff">conn 4 — in use</text>
+  <rect x="318" y="238" width="164" height="18" fill="#8fd6a8" rx="4"/>
+  <text x="400" y="251" text-anchor="middle" font-size="9" fill="#1a7a3c">conn 5 — available ✓</text>
+  <rect x="318" y="260" width="164" height="18" fill="#8fd6a8" rx="4"/>
+  <text x="400" y="273" text-anchor="middle" font-size="9" fill="#1a7a3c">conn 6 — available ✓</text>
+  <text x="400" y="298" text-anchor="middle" font-size="9" fill="#1a7a3c">... 4 more ready</text>
+
+  <!-- Short queue -->
+  <text x="400" y="330" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a7a3c">Queue drains quickly</text>
+  <text x="400" y="345" text-anchor="middle" font-size="9" fill="#555">Requests wait briefly,</text>
+  <text x="400" y="358" text-anchor="middle" font-size="9" fill="#555">get served within timeout</text>
+
+  <rect x="296" y="370" width="208" height="34" fill="#8fd6a8" rx="6"/>
+  <text x="400" y="384" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a7a3c">Result: requests succeed 🟢</text>
+  <text x="400" y="398" text-anchor="middle" font-size="10" fill="#1a7a3c">Low latency, low error rate</text>
+
+  <!-- ====== TOO LARGE ====== -->
+  <rect x="548" y="72" width="232" height="340" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2"/>
+  <text x="664" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#b8860b">⚠️ Too Large</text>
+  <text x="664" y="114" text-anchor="middle" font-size="10" fill="#888">max: 200, one of several servers</text>
+
+  <!-- Pool with many slots -->
+  <rect x="574" y="124" width="180" height="192" fill="#fff3cd" rx="8" stroke="#ffd700" stroke-width="1.5"/>
+  <text x="664" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8860b">Pool (200 connections)</text>
+
+  <rect x="582" y="150" width="164" height="18" fill="#ffc107" rx="4"/>
+  <text x="664" y="163" text-anchor="middle" font-size="9" fill="#333">conn 1 — in use</text>
+  <rect x="582" y="172" width="164" height="18" fill="#ffc107" rx="4"/>
+  <text x="664" y="185" text-anchor="middle" font-size="9" fill="#333">conn 2 — in use</text>
+  <text x="664" y="208" text-anchor="middle" font-size="9" fill="#b8860b">... 198 more open</text>
+
+  <text x="664" y="240" text-anchor="middle" font-size="22">⚡</text>
+  <text x="664" y="265" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc3333">PostgreSQL limit hit!</text>
+  <text x="664" y="282" text-anchor="middle" font-size="9" fill="#555">max_connections = 100</text>
+  <text x="664" y="296" text-anchor="middle" font-size="9" fill="#555">Your pool wants 200.</text>
+  <text x="664" y="312" text-anchor="middle" font-size="9" fill="#cc3333">DB refuses new connections.</text>
+
+  <rect x="560" y="358" width="208" height="46" fill="#ffe69c" rx="6"/>
+  <text x="664" y="374" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8860b">Result: DB errors 💥</text>
+  <text x="664" y="389" text-anchor="middle" font-size="10" fill="#b8860b">Other services, migrations,</text>
+  <text x="664" y="402" text-anchor="middle" font-size="10" fill="#b8860b">monitoring — all get rejected</text>
+
+  <!-- Bottom bar -->
+  <rect x="20" y="428" width="760" height="36" fill="#e8f4fd" rx="6"/>
+  <text x="400" y="444" text-anchor="middle" font-size="11" fill="#1a5276">Rule of thumb: max ≈ (postgres max_connections − reserved) ÷ number of app servers</text>
+  <text x="400" y="459" text-anchor="middle" font-size="11" fill="#1a5276">Leave headroom for admin tools, migrations, and other services that need connections too.</text>
+
+</svg>

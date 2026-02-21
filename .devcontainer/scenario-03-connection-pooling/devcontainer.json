@@ -1,14 +1,14 @@
 {
-  "name": "Scenario 1 — The Single Server Problem",
-
-  "dockerComposeFile": "../../scenario-01-single-server/docker-compose.yml",
+  "name": "Scenario 3 — Connection Pooling",
+  "dockerComposeFile": "../../scenario-03-connection-pooling/docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/app",
-
+  "postStartCommand": "cd /app && npm install && node scripts/wait-and-seed.js",
+  "postAttachCommand": "code SCENARIO.md",
   "forwardPorts": [3000, 3002, 9090],
   "portsAttributes": {
     "3000": {
-      "label": "App (Feed API)",
+      "label": "Job Queue API",
       "onAutoForward": "notify"
     },
     "3002": {
@@ -20,7 +20,6 @@
       "onAutoForward": "silent"
     }
   },
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -35,8 +34,5 @@
         "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
-  },
-
-  "postStartCommand": "cd /app && npm install && node scripts/wait-and-seed.js",
-  "postAttachCommand": "code SCENARIO.md"
+  }
 }

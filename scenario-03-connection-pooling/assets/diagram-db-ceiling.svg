@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="800" height="440" fill="#f8f9ff" rx="16"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">PostgreSQL Has a Connection Ceiling</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">Every open connection from every app server counts toward the same limit.</text>
+
+  <defs>
+    <marker id="red-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#cc3333"/>
+    </marker>
+    <marker id="green-arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4caf50"/>
+    </marker>
+  </defs>
+
+  <!-- ====== ONE SERVER (good) ====== -->
+  <rect x="20" y="72" width="340" height="300" fill="#f0fff4" rx="12" stroke="#b3f0c8" stroke-width="2"/>
+  <text x="190" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7a3c">✅ One Server</text>
+  <text x="190" y="114" text-anchor="middle" font-size="10" fill="#888">max: 10 — safely within the limit</text>
+
+  <!-- Server box -->
+  <rect x="40" y="126" width="120" height="130" fill="#fff9e6" rx="8" stroke="#ffd700" stroke-width="2"/>
+  <text x="100" y="146" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8860b">🖥️ Server</text>
+  <rect x="52" y="154" width="96" height="18" fill="#ffd700" rx="3"/>
+  <text x="100" y="167" text-anchor="middle" font-size="9" fill="#333">conn 1</text>
+  <rect x="52" y="176" width="96" height="18" fill="#ffd700" rx="3"/>
+  <text x="100" y="189" text-anchor="middle" font-size="9" fill="#333">conn 2</text>
+  <rect x="52" y="198" width="96" height="18" fill="#ffd700" rx="3"/>
+  <text x="100" y="211" text-anchor="middle" font-size="9" fill="#333">⋮</text>
+  <text x="100" y="237" text-anchor="middle" font-size="10" fill="#b8860b">10 total</text>
+
+  <!-- Arrow to DB -->
+  <line x1="162" y1="190" x2="218" y2="190" stroke="#4caf50" stroke-width="2" marker-end="url(#green-arrow2)"/>
+  <text x="190" y="183" text-anchor="middle" font-size="9" fill="#4caf50">10 conns</text>
+
+  <!-- DB cylinder -->
+  <rect x="220" y="126" width="120" height="130" fill="#d4edda" rx="8" stroke="#4caf50" stroke-width="2"/>
+  <text x="280" y="146" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">🗄️ PostgreSQL</text>
+  <text x="280" y="162" text-anchor="middle" font-size="10" fill="#555">max_connections</text>
+  <text x="280" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7a3c">= 100</text>
+
+  <!-- Connection budget bar -->
+  <rect x="236" y="188" width="88" height="16" fill="#e0e0e0" rx="4"/>
+  <rect x="236" y="188" width="8" height="16" fill="#4caf50" rx="4"/>
+  <text x="280" y="220" text-anchor="middle" font-size="9" fill="#555">10 of 100 used</text>
+  <text x="280" y="234" text-anchor="middle" font-size="9" fill="#1a7a3c">90 connections free</text>
+  <text x="280" y="248" text-anchor="middle" font-size="9" fill="#555">for admin, migrations,</text>
+  <text x="280" y="260" text-anchor="middle" font-size="9" fill="#555">monitoring, etc.</text>
+
+  <rect x="40" y="272" width="300" height="36" fill="#8fd6a8" rx="6"/>
+  <text x="190" y="287" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a7a3c">Safe. Plenty of headroom.</text>
+  <text x="190" y="301" text-anchor="middle" font-size="10" fill="#1a7a3c">Other services can still connect.</text>
+
+  <!-- ====== THREE SERVERS (danger) ====== -->
+  <rect x="440" y="72" width="340" height="300" fill="#fff0f0" rx="12" stroke="#ffcccc" stroke-width="2"/>
+  <text x="610" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#cc3333">⚠️ Three Servers</text>
+  <text x="610" y="114" text-anchor="middle" font-size="10" fill="#888">max: 50 each — blows past the limit</text>
+
+  <!-- Three server boxes -->
+  <rect x="454" y="126" width="80" height="100" fill="#fff9e6" rx="6" stroke="#ffd700" stroke-width="1.5"/>
+  <text x="494" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8860b">Server 1</text>
+  <text x="494" y="162" text-anchor="middle" font-size="9" fill="#b8860b">50 conns</text>
+  <text x="494" y="178" text-anchor="middle" font-size="18">🖥️</text>
+
+  <rect x="544" y="126" width="80" height="100" fill="#fff9e6" rx="6" stroke="#ffd700" stroke-width="1.5"/>
+  <text x="584" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8860b">Server 2</text>
+  <text x="584" y="162" text-anchor="middle" font-size="9" fill="#b8860b">50 conns</text>
+  <text x="584" y="178" text-anchor="middle" font-size="18">🖥️</text>
+
+  <rect x="634" y="126" width="80" height="100" fill="#fff9e6" rx="6" stroke="#ffd700" stroke-width="1.5"/>
+  <text x="674" y="143" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8860b">Server 3</text>
+  <text x="674" y="162" text-anchor="middle" font-size="9" fill="#b8860b">50 conns</text>
+  <text x="674" y="178" text-anchor="middle" font-size="18">🖥️</text>
+
+  <!-- Arrows all to DB -->
+  <line x1="536" y1="176" x2="698" y2="210" stroke="#cc3333" stroke-width="1.5" marker-end="url(#red-arrow)"/>
+  <line x1="626" y1="176" x2="706" y2="210" stroke="#cc3333" stroke-width="1.5" marker-end="url(#red-arrow)"/>
+  <line x1="716" y1="176" x2="714" y2="210" stroke="#cc3333" stroke-width="1.5" marker-end="url(#red-arrow)"/>
+
+  <text x="610" y="202" text-anchor="middle" font-size="9" fill="#cc3333">50 + 50 + 50 = 150 connections</text>
+
+  <!-- DB box -->
+  <rect x="690" y="212" width="76" height="100" fill="#ffdddd" rx="8" stroke="#ff8080" stroke-width="2"/>
+  <text x="728" y="232" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc3333">🗄️ DB</text>
+  <text x="728" y="248" text-anchor="middle" font-size="9" fill="#cc3333">limit: 100</text>
+  <text x="728" y="264" text-anchor="middle" font-size="9" fill="#cc3333">wants: 150</text>
+  <text x="728" y="284" text-anchor="middle" font-size="18">💥</text>
+
+  <!-- Budget bar full -->
+  <rect x="454" y="244" width="220" height="16" fill="#e0e0e0" rx="4"/>
+  <rect x="454" y="244" width="220" height="16" fill="#cc3333" rx="4"/>
+  <text x="564" y="238" text-anchor="middle" font-size="9" font-weight="bold" fill="#cc3333">150 of 100 — OVER LIMIT</text>
+  <text x="564" y="272" text-anchor="middle" font-size="9" fill="#cc3333">PostgreSQL starts rejecting connections.</text>
+  <text x="564" y="286" text-anchor="middle" font-size="9" fill="#cc3333">Admin tools, monitoring, migrations —</text>
+  <text x="564" y="300" text-anchor="middle" font-size="9" fill="#cc3333">all get "too many connections" errors.</text>
+
+  <rect x="454" y="310" width="300" height="36" fill="#ffb3b3" rx="6"/>
+  <text x="604" y="325" text-anchor="middle" font-size="10" font-weight="bold" fill="#cc0000">Fix: max ≈ (100 − 10 reserved) ÷ 3 servers</text>
+  <text x="604" y="339" text-anchor="middle" font-size="10" fill="#cc0000">= 30 connections per server</text>
+
+  <!-- Bottom bar -->
+  <rect x="20" y="388" width="760" height="36" fill="#e8f4fd" rx="6"/>
+  <text x="400" y="404" text-anchor="middle" font-size="11" fill="#1a5276">Adding more app servers doesn't give you more database connections — it divides the budget you already have.</text>
+  <text x="400" y="420" text-anchor="middle" font-size="11" fill="#1a5276">This is exactly why Scenario 4 (horizontal scaling) changes how you think about pool configuration.</text>
+
+</svg>

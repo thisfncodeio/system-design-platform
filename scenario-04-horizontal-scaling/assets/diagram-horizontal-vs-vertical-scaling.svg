@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="'Segoe UI', Arial, sans-serif">
+  <rect width="800" height="420" fill="#f8f9ff" rx="16"/>
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">Vertical vs Horizontal Scaling</text>
+  <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">Two ways to handle more traffic. One has a hard ceiling. The other doesn't.</text>
+
+  <!-- LEFT: Vertical -->
+  <rect x="20" y="72" width="355" height="300" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2"/>
+  <text x="197" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#b8860b">⬆️ Vertical Scaling</text>
+  <text x="197" y="115" text-anchor="middle" font-size="10" fill="#888">Make the one server bigger</text>
+
+  <!-- Small then big server -->
+  <rect x="60" y="130" width="80" height="90" fill="#fff3cd" rx="8" stroke="#ffc107" stroke-width="2"/>
+  <text x="100" y="155" text-anchor="middle" font-size="20">🖥️</text>
+  <text x="100" y="175" text-anchor="middle" font-size="10" fill="#b8860b">2 CPU</text>
+  <text x="100" y="190" text-anchor="middle" font-size="10" fill="#b8860b">8GB RAM</text>
+  <text x="100" y="210" text-anchor="middle" font-size="9" fill="#888">before</text>
+
+  <text x="195" y="182" text-anchor="middle" font-size="24" fill="#ffc107">→</text>
+
+  <rect x="218" y="115" width="120" height="120" fill="#fff3cd" rx="8" stroke="#ffc107" stroke-width="2"/>
+  <text x="278" y="148" text-anchor="middle" font-size="28">🖥️</text>
+  <text x="278" y="175" text-anchor="middle" font-size="11" fill="#b8860b">16 CPU</text>
+  <text x="278" y="192" text-anchor="middle" font-size="11" fill="#b8860b">64GB RAM</text>
+  <text x="278" y="225" text-anchor="middle" font-size="9" fill="#888">after</text>
+
+  <rect x="40" y="260" width="315" height="94" fill="#ffe69c" rx="8"/>
+  <text x="197" y="280" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8860b">What this costs:</text>
+  <text x="197" y="297" text-anchor="middle" font-size="10" fill="#555">✓ Simple — still one server to manage</text>
+  <text x="197" y="313" text-anchor="middle" font-size="10" fill="#cc3333">✗ Expensive — big machines cost a lot</text>
+  <text x="197" y="329" text-anchor="middle" font-size="10" fill="#cc3333">✗ Hard ceiling — can't scale past the biggest machine</text>
+  <text x="197" y="345" text-anchor="middle" font-size="10" fill="#cc3333">✗ Single point of failure — still one machine</text>
+
+  <!-- RIGHT: Horizontal -->
+  <rect x="425" y="72" width="355" height="300" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2"/>
+  <text x="602" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7a3c">➡️ Horizontal Scaling</text>
+  <text x="602" y="115" text-anchor="middle" font-size="10" fill="#888">Add more servers</text>
+
+  <!-- Load balancer + two servers -->
+  <rect x="548" y="125" width="108" height="40" fill="#dce8ff" rx="6" stroke="#90b4f5" stroke-width="2"/>
+  <text x="602" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a5276">⚖️ nginx</text>
+  <text x="602" y="158" text-anchor="middle" font-size="9" fill="#555">load balancer</text>
+
+  <line x1="572" y1="165" x2="510" y2="200" stroke="#4caf50" stroke-width="2"/>
+  <line x1="632" y1="165" x2="694" y2="200" stroke="#4caf50" stroke-width="2"/>
+
+  <rect x="452" y="200" width="108" height="72" fill="#d4edda" rx="8" stroke="#4caf50" stroke-width="2"/>
+  <text x="506" y="224" text-anchor="middle" font-size="18">🖥️</text>
+  <text x="506" y="244" text-anchor="middle" font-size="10" fill="#1a7a3c">Server 1</text>
+  <text x="506" y="258" text-anchor="middle" font-size="9" fill="#555">2 CPU · 8GB</text>
+
+  <rect x="644" y="200" width="108" height="72" fill="#d4edda" rx="8" stroke="#4caf50" stroke-width="2"/>
+  <text x="698" y="224" text-anchor="middle" font-size="18">🖥️</text>
+  <text x="698" y="244" text-anchor="middle" font-size="10" fill="#1a7a3c">Server 2</text>
+  <text x="698" y="258" text-anchor="middle" font-size="9" fill="#555">2 CPU · 8GB</text>
+
+  <rect x="445" y="290" width="315" height="74" fill="#8fd6a8" rx="8"/>
+  <text x="602" y="310" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">What this costs:</text>
+  <text x="602" y="327" text-anchor="middle" font-size="10" fill="#1a7a3c">✓ No hard ceiling — keep adding servers</text>
+  <text x="602" y="343" text-anchor="middle" font-size="10" fill="#1a7a3c">✓ Cheaper — small machines are inexpensive</text>
+  <text x="602" y="359" text-anchor="middle" font-size="10" fill="#cc3333">✗ More complex — servers need to share state</text>
+
+  <!-- Bottom -->
+  <rect x="20" y="384" width="760" height="26" fill="#e8f4fd" rx="6"/>
+  <text x="400" y="401" text-anchor="middle" font-size="11" fill="#1a5276">Most production systems use horizontal scaling. That complexity in the bottom right is exactly what the next scenarios address.</text>
+</svg>

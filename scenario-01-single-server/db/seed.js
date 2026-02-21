@@ -44,6 +44,13 @@ const sampleContent = [
 async function seed() {
   console.log('Seeding database...');
 
+  const existing = await db.query('SELECT COUNT(*) FROM posts');
+  if (parseInt(existing.rows[0].count) > 0) {
+    console.log('✅ Database already seeded. Skipping.');
+    await db.end();
+    return;
+  }
+
   // Create users
   console.log(`Creating ${USERS_TO_CREATE} users...`);
   const userIds = [];

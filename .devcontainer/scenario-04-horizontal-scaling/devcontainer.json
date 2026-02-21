@@ -1,15 +1,19 @@
 {
-  "name": "Scenario 1 — The Single Server Problem",
-
-  "dockerComposeFile": "../../scenario-01-single-server/docker-compose.yml",
+  "name": "Scenario 4 — Horizontal Scaling",
+  "dockerComposeFile": "../../scenario-04-horizontal-scaling/docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/app",
-
-  "forwardPorts": [3000, 3002, 9090],
+  "postStartCommand": "cd /app && npm install && node scripts/wait-and-seed.js",
+  "postAttachCommand": "code SCENARIO.md",
+  "forwardPorts": [3000, 8080, 3002, 9090],
   "portsAttributes": {
     "3000": {
-      "label": "App (Feed API)",
+      "label": "Catalog API (single server)",
       "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Nginx Load Balancer (after fix)",
+      "onAutoForward": "silent"
     },
     "3002": {
       "label": "Grafana Dashboard",
@@ -20,7 +24,6 @@
       "onAutoForward": "silent"
     }
   },
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -35,8 +38,5 @@
         "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
-  },
-
-  "postStartCommand": "cd /app && npm install && node scripts/wait-and-seed.js",
-  "postAttachCommand": "code SCENARIO.md"
+  }
 }

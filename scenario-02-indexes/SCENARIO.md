@@ -15,7 +15,7 @@ A database index is a separate data structure that keeps a pre-sorted reference 
 
 The tradeoff: indexes make reads faster but slow down writes slightly, because every INSERT or UPDATE has to update the index too. This is why you don't add indexes to every column — only the ones your queries actually need.
 
-![Index Diagram](../scenario-01-single-server/assets/diagram-index.svg)
+![Index Diagram](assets/diagram-index.svg)
 
 ---
 
@@ -181,7 +181,7 @@ psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
 ```sql
-CREATE INDEX idx_orders_user_id ON orders (user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);
 ```
 
 Verify PostgreSQL is using it:
@@ -229,7 +229,7 @@ psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
 ```sql
-CREATE INDEX idx_products_category_price ON products (category, price_cents);
+CREATE INDEX IF NOT EXISTS idx_products_category_price ON products (category, price_cents);
 ```
 
 Verify it's being used:
