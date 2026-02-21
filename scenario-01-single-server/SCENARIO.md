@@ -81,7 +81,7 @@ Grafana is your live metrics dashboard. You'll use it to watch what happens to t
 5. In the left sidebar click **Dashboards**
 6. Click **Scenario 1 — The Single Server Problem**
 
-You should see four panels: Request Rate, Response Latency, Error Rate, and Memory Usage. They will show "No data" until traffic hits the server — that's normal. Hover the ℹ️ icon on any panel for a plain-English explanation of what it shows and what to look for.
+You should see four panels: Successful Requests, Response Latency, Error Rate, and Success Rate %. They will show "No data" until traffic hits the server — that's normal. Hover the ℹ️ icon on any panel for a plain-English explanation of what it shows and what to look for.
 
 **Using Grafana:**
 
@@ -165,7 +165,7 @@ Your answer:
 
 ```
 
-**Q5: The `/feed` route has a 500ms delay added to simulate a slow database query. In production, a missing index on `created_at` would cause something similar. Why would sorting 10,000 rows with no index be slow? What about 1,000,000 rows?**
+**Q5: In `server.js`, the `/feed` route calls `artificialDatabaseTableLatency()` — a simulation that adds 500ms to every request when no index exists on `created_at`. In production, a missing index would cause this naturally. Why would sorting 10,000 rows with no index be slow? What about 1,000,000 rows?**
 
 ```
 Your answer:
@@ -257,6 +257,8 @@ Run the load test again and watch Grafana:
 npm run loadtest
 ```
 
+**What to expect:** The error rate should collapse to near zero and Success Rate % should turn green. Latency will still be around 500ms — that's not a bug. Fixing the pool makes the server *reliable*, not faster. Requests that were failing immediately are now completing, they're just still slow. The latency problem is what Fix 2 addresses.
+
 ---
 
 ### Fix 2: Add a Database Index
@@ -310,6 +312,8 @@ You should now see `Index Scan`. Type `\q` to exit, then run the load test one f
 ```bash
 npm run loadtest
 ```
+
+**What to expect:** Latency should drop significantly — without any code change. You didn't touch `server.js`. The index now exists in the database, so the simulation detects it and stops adding the delay. That's the point: the slowness was never in the code. It was in the database. The index is what fixed it.
 
 ---
 
