@@ -384,9 +384,10 @@ You didn't just read about these concepts. You watched them fail in real time, r
 | Grafana showing "No data"                    | Make sure you ran `npm run loadtest` first — panels only show data when traffic hits the server |
 | Grafana panels are empty after the load test | Change the time range to "Last 15 minutes" in the top right                                     |
 | Can't find the dashboard in Grafana          | Click Dashboards in the left sidebar → Scenario 1 — The Single Server Problem                   |
-| psql command not found                       | The psql client should be available in the container — try `which psql` to confirm              |
+| psql command not found                       | Run `apk add --no-cache postgresql-client` in the terminal to install it, then retry            |
 | Still seeing Seq Scan after adding index     | Run `ANALYZE posts;` inside psql and then try EXPLAIN ANALYZE again                             |
 | Really stuck on the code fix                 | Open `solution/server.fixed.js` — it has the full solution with comments                        |
+| Really stuck on the index fix                | Open `solution/fix.sql` — it has the exact SQL with an explanation of why it works              |
 
 ---
 

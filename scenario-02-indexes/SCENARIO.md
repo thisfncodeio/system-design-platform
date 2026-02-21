@@ -356,7 +356,7 @@ Your answer:
 
 | Problem                                            | What to do                                                                                          |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| psql command not found                             | The psql client should be available in the container — try `which psql` to confirm                  |
+| psql command not found                             | Run `apk add --no-cache postgresql-client` in the terminal to install it, then retry               |
 | Still seeing Seq Scan after adding index           | Run `ANALYZE orders;` inside psql first, then try EXPLAIN ANALYZE again                             |
 | Load test results look the same after adding index | Make sure you exited psql and reran the load test                                                   |
 | Want to see the full solution                      | Open `solution/fix.sql` — it has all indexes with explanations of why the status index was left out |

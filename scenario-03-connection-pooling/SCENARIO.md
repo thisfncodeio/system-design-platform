@@ -307,7 +307,7 @@ That last question is exactly what Scenario 4 is about.
 | Load test shows no errors after Fix 1 | Check the terminal — nodemon should have restarted automatically when you saved the file |
 | Grafana showing "No data" | Run `npm run loadtest` first — panels only show data when traffic hits the server |
 | Grafana panels empty after load test | Change time range to "Last 15 minutes" in the top right |
-| psql command not found | Try `which psql` to confirm it's available in the container |
+| psql command not found | Run `apk add --no-cache postgresql-client` in the terminal to install it, then retry |
 | Not sure what `max_connections` means | Run `SHOW max_connections;` in psql — it shows PostgreSQL's hard limit on total connections |
 | Really stuck on the fix | Open `solution/server.fixed.js` — it has the corrected pool config with explanation |
 

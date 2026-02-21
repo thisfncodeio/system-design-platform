@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const db = new Pool({
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'postgres',
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME || 'jobqueue',
   user: process.env.DB_USER || 'postgres',
