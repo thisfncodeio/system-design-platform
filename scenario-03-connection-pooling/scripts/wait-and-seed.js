@@ -34,6 +34,7 @@ async function seed() {
   const existing = await db.query('SELECT COUNT(*) FROM jobs');
   if (parseInt(existing.rows[0].count) > 0) {
     console.log('✅ Database already seeded, skipping');
+    console.log('\n✅ Environment ready. Open SCENARIO.md to begin.\n');
     await db.end();
     return;
   }
@@ -43,6 +44,7 @@ async function seed() {
 
   const count = await db.query('SELECT COUNT(*) FROM jobs');
   console.log(`✅ Seeded ${count.rows[0].count} jobs`);
+  console.log('\n✅ Environment ready. Open SCENARIO.md to begin.\n');
   await db.end();
 }
 

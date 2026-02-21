@@ -387,7 +387,8 @@ That's what Scenario 5 is about.
 
 | Problem                                     | What to do                                                                                                                          |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `docker compose up` fails                   | Run `docker compose down -v` first to clear volumes, then try again                                                                 |
+| `docker compose up` gives a YAML parse error | Check the indentation in `docker-compose.yml`. YAML requires consistent spacing — every line under `environment:` should be indented with exactly 6 spaces. A single extra or missing space breaks the whole file. |
+| `docker compose up` fails for any other reason | Run `docker compose down -v` first to clear volumes, then try again                                                              |
 | Both `/health` calls return the same server | nginx may not have restarted — run `docker compose restart nginx`                                                                   |
 | Load test still hitting port 3000           | The load test targets port 8080 — confirm nginx is running with `docker compose ps`                                                 |
 | CPU not visibly saturating                  | Run `npm run status` — you should see `Orders in DB: 500000 ✅ Ready`. If it shows ⏳, wait and try again.                          |

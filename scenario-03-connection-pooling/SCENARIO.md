@@ -152,6 +152,12 @@ Your answer:
 
 **The fix:** Option A for now. The pool is simply misconfigured for the actual traffic. Options B and C are valid at higher scale but add complexity that isn't warranted before fixing the obvious problem first.
 
+Three things change in the pool config — not two:
+
+- **`max: 3 → 10`**: 10 connections can serve 10 requests simultaneously. The other 40 queue and wait rather than immediately failing.
+- **`connectionTimeoutMillis: 200 → 5000`**: requests now wait up to 5 seconds for a connection instead of giving up after 200ms. That's enough time for the queue to drain under normal load.
+- **`idleTimeoutMillis: 1000 → 30000`**: at 1 second, idle connections get closed and immediately need to be reopened as the next request arrives. Under sustained load this creates constant connection churn. 30 seconds is a more realistic hold time.
+
 Open `src/server.js` and update the pool configuration:
 
 ```javascript

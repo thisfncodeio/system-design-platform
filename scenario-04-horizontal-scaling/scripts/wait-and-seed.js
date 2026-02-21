@@ -38,6 +38,7 @@ async function seed() {
   const existing = await db.query('SELECT COUNT(*) FROM orders');
   if (parseInt(existing.rows[0].count) >= 500000) {
     console.log('✅ Database already seeded, skipping');
+    console.log('\n✅ Environment ready. Open SCENARIO.md to begin.\n');
     await db.end();
     return;
   }
@@ -47,6 +48,7 @@ async function seed() {
 
   const count = await db.query('SELECT COUNT(*) FROM orders');
   console.log(`✅ Seeded 5,000 products and ${count.rows[0].count} orders`);
+  console.log('\n✅ Environment ready. Open SCENARIO.md to begin.\n');
   await db.end();
 }
 

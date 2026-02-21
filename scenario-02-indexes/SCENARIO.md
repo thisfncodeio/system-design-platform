@@ -107,6 +107,8 @@ EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
 
 **Query 2 — Filter by category and price:**
 
+(Note: the API accepts dollar amounts — `min_price=100` means $100. The server converts to cents internally: 100 × 100 = 10000. The SQL queries the raw `price_cents` column directly, so the numbers look different from the URL.)
+
 ```sql
 EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;
 ```
