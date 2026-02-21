@@ -81,7 +81,7 @@ Grafana is your live metrics dashboard. You'll use it to watch what happens to t
 5. In the left sidebar click **Dashboards**
 6. Click **Scenario 1 — The Single Server Problem**
 
-You should see four panels: Request Rate, Response Latency, Error Rate, and Memory Usage. They will show "No data" until traffic hits the server — that's normal.
+You should see four panels: Request Rate, Response Latency, Error Rate, and Memory Usage. They will show "No data" until traffic hits the server — that's normal. Hover the ℹ️ icon on any panel for a plain-English explanation of what it shows and what to look for.
 
 **Using Grafana:**
 

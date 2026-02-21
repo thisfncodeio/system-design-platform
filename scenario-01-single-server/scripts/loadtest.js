@@ -24,7 +24,7 @@ const instance = autocannon(
       return;
     }
 
-      const total = results.requests.total;
+    const total = results.requests.total;
     const non2xx = results["non2xx"] || 0;
     const succeeded = total - non2xx;
     const successRate = total > 0 ? ((succeeded / total) * 100).toFixed(1) : 0;
@@ -39,12 +39,15 @@ const instance = autocannon(
     console.log(`    ${succeeded} of ${total} requests got a valid response`);
     console.log(`    ${non2xx} failed (server returned an error or timed out)`);
     console.log(`    Success rate: ${successRate}%`);
+    console.log(`    Timeouts: ${results.timeouts}`);
 
     console.log("");
     console.log("  How long did requests take?");
     console.log(`    Avg: ${results.latency.average}ms  — the typical response time`);
     console.log(`    p50: ${results.latency.p50}ms  — half of users waited at least this long`);
-    console.log(`    p99: ${results.latency.p99}ms  — 1 in 100 users waited this long (the worst experience)`);
+    console.log(
+      `    p99: ${results.latency.p99}ms  — 1 in 100 users waited this long (the worst experience)`,
+    );
     console.log(`    Max: ${results.latency.max}ms  — the slowest single request`);
 
     console.log("");

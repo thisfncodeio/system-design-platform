@@ -59,6 +59,7 @@
         }
       ],
       "title": "Request Rate (req/sec)",
+      "description": "How many requests your server is completing per second. When the load test runs, you should see this climb. If it stays low or drops while traffic is hammering the server, requests are failing before they can complete — the server is overwhelmed.",
       "type": "timeseries"
     },
     {
@@ -119,6 +120,7 @@
         }
       ],
       "title": "Response Latency (ms) — watch this drop after each fix",
+      "description": "How long each request takes from the moment it arrives to the moment a response is sent back. Two lines: avg is the typical experience, p99 is the worst 1 in 100 users. After Fix 1 (pool): latency stays around 500ms — fixing the pool makes the server reliable, not faster. After Fix 2 (index): latency drops — the database query is now fast.",
       "type": "timeseries"
     },
     {
@@ -177,7 +179,8 @@
           "refId": "B"
         }
       ],
-      "title": "Error Rate",
+      "title": "Error Rate (errors/sec)",
+      "description": "How many requests are returning errors every second. A 500 error means the server crashed on that request — in this scenario that's almost always a database connection timeout. This should be zero or near zero. If it spikes during the load test, the server is failing under load. Watch this collapse after Fix 1.",
       "type": "timeseries"
     },
     {
@@ -231,6 +234,7 @@
         }
       ],
       "title": "Memory Usage",
+      "description": "How much RAM the Node.js server process is using. Not the main signal in this scenario — the connection pool and index problems show up in the other three panels. Just keep an eye on it to confirm the server isn't leaking memory as it runs.",
       "type": "timeseries"
     }
   ],
