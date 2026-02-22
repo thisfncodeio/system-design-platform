@@ -220,6 +220,9 @@ Considered putting connection pooling or indexes before the single server scenar
 **Strict prerequisite chain**
 Considered requiring learners to complete scenarios in strict order with no jumping allowed. Rejected in favor of standalone with recommended order. Flexibility matters — a working engineer with a specific gap should be able to jump to the relevant scenario without doing all the ones before it.
 
+**Adding an N+1 scenario to the Crawling tier**
+Considered adding N+1 queries as a standalone scenario or slotting it into Scenario 1 (social feed) or Scenario 2 (e-commerce indexes). Rejected — N+1 is an application-level query pattern problem, not a system design concept. You fix it by writing a better query (JOIN instead of a loop). Every concept in the current curriculum is an architectural or infrastructure decision: how you connect to the database, how you index it, how you scale it, how you cache it. N+1 sits in a different category and doesn't extend the Crawling arc. The one place it could earn its spot is in the Sprinting tier — when building a news feed or notification system at scale, N+1 becomes an architectural concern because the fix might involve denormalization or a separate read model rather than just a better query. If learner testing reveals it's a gap blocking understanding of later concepts, add it then. Until then, leave it out.
+
 ---
 
 ## Current Open Questions
