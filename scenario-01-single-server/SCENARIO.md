@@ -417,25 +417,25 @@ Use this after you've written your own answers. Don't skip to this first — the
 
 ---
 
-**Q2: What happens to query speed as the table grows?**
+**Q2: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows without one?**
 
 `db/schema.sql` defines no index on `created_at`. Without one, PostgreSQL reads every row in the table on every `/feed` request to find and sort the results. With 10,000 rows it's slow but survivable. With 1,000,000 rows it reads a million rows to return 20 — query time grows linearly with the table, and eventually the app becomes unusable.
 
 ---
 
-**Q3: What do you think will happen when 100 users hit the server at the same time?**
+**Q3: Before running anything — what do you think will happen when 100 users hit the server at the same time? Make a guess, even if you're not sure.**
 
 Most requests will fail. Each of the 100 users triggers a new pool with `max: 1` and a 150ms timeout. All 100 try to open a connection to PostgreSQL simultaneously. Most of them can't get one within 150ms and return an error immediately. The server can't keep up.
 
 ---
 
-**Q4: Your results show most requests failed. Explain exactly why, per request.**
+**Q4: Your results show most requests failed. Looking at `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 100 concurrent requests.**
 
 Each of the 100 concurrent requests calls `getDbConnection()` and creates its own independent pool — none of them share connections. All 100 pools compete to open a connection to PostgreSQL at the same time. Each pool only allows 1 connection and gives up after 150ms. The requests that don't get a connection within that window fail immediately with a timeout error. The database is barely touched — the failure happens before queries even run.
 
 ---
 
-**Q5: Which option fixes the root cause? Which treat the symptom?**
+**Q5: Compare all three options, which option fixes the root cause? Which ones just treat the symptom?**
 
 Option A fixes the root cause. The problem is that creating a new pool per request is wasteful and unsustainable — a shared pool eliminates this entirely.
 
@@ -445,29 +445,17 @@ Option C treats a different symptom. Rate limiting stops some requests from fail
 
 ---
 
-**Q6: Why would sorting without an index be slow? What about at 1,000,000 rows?**
+**Q6: Why would sorting 10,000 rows with no index be slow? What about 1,000,000 rows?**
 
 Without an index, the database does a sequential scan — it reads every row in the table to find and sort the results. At 10,000 rows it reads 10,000 rows just to return 20. At 1,000,000 rows it reads all 1,000,000 rows to return 20. The work grows linearly with the table size. An index gives the database a pre-sorted shortcut so it can jump directly to the rows it needs.
 
 ---
 
-**Q7: Which option makes the most sense now? What changes at higher scale?**
+**Q7: For this system right now — compare all three option, which makes the most sense and why? What would change your answer if this table had 10 million rows and 10,000 writes per second?**
 
 Option B — the index — makes the most sense here. The table is read far more than it's written to, so the cost of maintaining an index on inserts is negligible compared to the read benefit.
 
 At 10 million rows and 10,000 writes per second, the answer changes. That write volume means every INSERT updates the index — the overhead becomes meaningful. At that scale Option A (caching) reduces database reads dramatically, and Option C (cursor-based pagination) avoids the full sort entirely. The right answer depends on the actual numbers.
-
----
-
-**Q8: If traffic grew to 10x overnight, what would you do first?**
-
-Add more servers and put a load balancer in front of them. This is horizontal scaling — instead of making one machine bigger, you run multiple copies of the app and distribute traffic across them. Because the app is stateless (no user session data stored in server memory), this is straightforward. This is exactly what Scenario 4 covers.
-
----
-
-**Q9: How would you deploy a new version without any downtime?**
-
-Start a second instance running the new code, switch the load balancer to send traffic to it, then shut down the old instance. This is called a blue-green deployment. With only one server right now you can't do this — any restart means a brief outage, even if nodemon makes it fast. Having more than one server is what makes zero-downtime deployments possible. Another reason horizontal scaling matters.
 
 ---
 
