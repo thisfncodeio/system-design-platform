@@ -1,7 +1,7 @@
 {
   "name": "scenario-01-single-server",
   "version": "1.0.0",
-  "description": "System Design Scenario 1: The Single Server Problem",
+  "description": "System Design Scenario 1: Connection Pools and Database Indexes",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

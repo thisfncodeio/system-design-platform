@@ -64,9 +64,9 @@ app.use((req, res, next) => {
 // DATABASE CONNECTION
 //
 // A new Pool (connection) is created for every request
-// that comes in. This is a common mistake in early backends.
-// Keep this in mind as you read the code.
+// that comes in.
 // ======================================================
+
 // Create a new database connection
 function getDbConnection() {
   // Use the Pool class to create a new database connection with the following configuration

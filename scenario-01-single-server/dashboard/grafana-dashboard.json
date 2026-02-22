@@ -242,7 +242,7 @@
   "time": { "from": "now-5m", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Scenario 1 — The Single Server Problem",
+  "title": "Scenario 1 — Connection Pools and Database Indexes",
   "uid": "scenario-01",
   "version": 1
 }

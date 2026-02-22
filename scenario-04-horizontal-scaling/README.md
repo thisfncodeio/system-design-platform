@@ -25,11 +25,14 @@ Make sure you're on the main repository page at github.com.
 
 ### Step 3 — Create a Codespace
 
-1. Click the green **Code** button near the top right
-2. Click the **Codespaces** tab
-3. Click **New codespace**
-4. Under **Dev container configuration**, select **Scenario 4 — Horizontal Scaling**
-5. Click **Create codespace**
+1. Click the green **Code** button at the top of this page
+1. Select the **Codespaces** tab
+1. Click the 3 dots and select **Codespace repository configuration**
+1. Click **New with options...**
+1. On the next page, a dropdown will appear asking **Dev container configuration** — pick the scenario you want to start (e.g. "Scenario 4 — Horizontal Scaling")
+1. Click **Create codespace**
+1. Wait ~2 minutes for the environment to build — the database seeds itself automatically
+1. When VS Code opens, **SCENARIO.md** will be open and ready to read
 
 Wait ~2 minutes for the environment to build. The database seeds 500k rows automatically — this takes about 30–60 seconds after VS Code opens.
 

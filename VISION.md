@@ -126,7 +126,7 @@ Sprinting scenarios use a different format — open-ended design challenges with
 ## Current Status
 
 - Track 1, Crawling stage (Scenarios 1–4) is complete
-- Scenario 1: social feed app — connection pooling, indexes, single point of failure
+- Scenario 1: social feed app — connection pooling, indexes
 - Scenario 2: e-commerce shop — query planning, cardinality, EXPLAIN ANALYZE, composite indexes
 - Scenario 3: job queue API — pool sizing, connection timeout, PostgreSQL connection ceiling
 - Scenario 4: product catalog API — CPU ceiling, horizontal scaling, nginx load balancer, pool budget split

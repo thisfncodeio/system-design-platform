@@ -16,12 +16,13 @@ Everything you do here is exactly what engineers do in production — the same t
 Each scenario runs in your browser using GitHub Codespaces — no installs required.
 
 1. Click the green **Code** button at the top of this page
-2. Select the **Codespaces** tab
-3. Click **New codespace**
-4. A dropdown will appear asking **which devcontainer configuration to use** — pick the scenario you want to start (e.g. "Scenario 1 — The Single Server Problem")
-5. Click **Create codespace**
-6. Wait ~2 minutes for the environment to build — the database seeds itself automatically
-7. When VS Code opens, **SCENARIO.md** will be open and ready to read
+1. Select the **Codespaces** tab
+1. Click the 3 dots and select **Codespace repository configuration**
+1. Click **New with options...**
+1. On the next page, a dropdown will appear asking **Dev container configuration** — pick the scenario you want to start (e.g. "Scenario 1 — Connection Pools and Database Indexes")
+1. Click **Create codespace**
+1. Wait ~2 minutes for the environment to build — the database seeds itself automatically
+1. When VS Code opens, **SCENARIO.md** will be open and ready to read
 
 > **First time?** Start with Scenario 1. The environment sets itself up automatically — database seeded, app running, metrics dashboard ready.
 
@@ -33,12 +34,12 @@ Work through these in order, or jump to the concept you need. Scenarios 1–4 bu
 
 ### 🐛 Crawling — Understand how one server works and why it breaks
 
-| #   | Scenario                                                 | Concepts                                                           | Status   |
-| --- | -------------------------------------------------------- | ------------------------------------------------------------------ | -------- |
-| 1   | [The Single Server Problem](./scenario-01-single-server) | Connection Pooling · Indexes · Single Points of Failure            | ✅ Ready |
-| 2   | [Indexes and Slow Queries](./scenario-02-indexes)        | Query Planning · Cardinality · EXPLAIN ANALYZE · Composite Indexes | ✅ Ready |
-| 3   | [Connection Pooling](./scenario-03-connection-pooling)   | Pool sizing · Timeouts · PostgreSQL connection ceiling             | ✅ Ready |
-| 4   | [Horizontal Scaling](./scenario-04-horizontal-scaling)   | CPU ceiling · Load balancing · nginx · Connection budget split     | ✅ Ready |
+| #   | Scenario                                                             | Concepts                                                           | Status   |
+| --- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | -------- |
+| 1   | [Connection Pools and Database Indexes](./scenario-01-single-server) | Connection Pooling · Database Indexes                              | ✅ Ready |
+| 2   | [Indexes and Slow Queries](./scenario-02-indexes)                    | Query Planning · Cardinality · EXPLAIN ANALYZE · Composite Indexes | ✅ Ready |
+| 3   | [Connection Pooling](./scenario-03-connection-pooling)               | Pool sizing · Timeouts · PostgreSQL connection ceiling             | ✅ Ready |
+| 4   | [Horizontal Scaling](./scenario-04-horizontal-scaling)               | CPU ceiling · Load balancing · nginx · Connection budget split     | ✅ Ready |
 
 ### 🚶 Walking — Learn to scale a single system
 

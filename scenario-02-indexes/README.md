@@ -13,12 +13,14 @@ Three endpoints are getting slow as the database grows. You'll use EXPLAIN ANALY
 
 ## Get Started
 
-1. Click the green **Code** button above
-2. Select the **Codespaces** tab
-3. Click **New codespace**
-4. Under **Dev container configuration**, select **Scenario 2 — Indexes and Slow Queries**
-5. Click **Create codespace** and wait ~2 minutes for the environment to build
-6. When VS Code opens, follow **SCENARIO.md**
+1. Click the green **Code** button at the top of this page
+1. Select the **Codespaces** tab
+1. Click the 3 dots and select **Codespace repository configuration**
+1. Click **New with options...**
+1. On the next page, a dropdown will appear asking **Dev container configuration** — pick the scenario you want to start (e.g. "Scenario 2 — Indexes and Slow Queries")
+1. Click **Create codespace**
+1. Wait ~2 minutes for the environment to build — the database seeds itself automatically
+1. When VS Code opens, **SCENARIO.md** will be open and ready to read
 
 No installs. No setup. Everything runs in your browser.
 

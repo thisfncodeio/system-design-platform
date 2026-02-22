@@ -1,16 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" font-family="'Segoe UI', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 460" font-family="'Segoe UI', Arial, sans-serif">
+
+  <defs>
+    <marker id="garrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1a7a3c"/>
+    </marker>
+  </defs>
 
   <!-- Background -->
-  <rect width="800" height="460" fill="#f8f9ff" rx="16"/>
+  <rect width="820" height="460" fill="#f8f9ff" rx="16"/>
 
   <!-- Title -->
-  <text x="400" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">What is a Connection Pool?</text>
-  <text x="400" y="58" text-anchor="middle" font-size="12" fill="#888">Opening a database connection costs ~50ms. That adds up fast under load.</text>
+  <text x="410" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">What is a Connection Pool?</text>
+  <text x="410" y="58" text-anchor="middle" font-size="12" fill="#888">Opening a database connection costs ~50ms. That adds up fast under load.</text>
 
   <!-- ====== LEFT: No Pool ====== -->
-  <rect x="30" y="75" width="345" height="355" fill="#fff0f0" rx="12" stroke="#ffcccc" stroke-width="2"/>
-  <text x="202" y="103" text-anchor="middle" font-size="15" font-weight="bold" fill="#cc3333">❌ Without a Pool</text>
-  <text x="202" y="121" text-anchor="middle" font-size="11" fill="#888">Every request from every user opens its own connection</text>
+  <rect x="30" y="75" width="320" height="355" fill="#fff0f0" rx="12" stroke="#ffcccc" stroke-width="2"/>
+  <text x="190" y="103" text-anchor="middle" font-size="15" font-weight="bold" fill="#cc3333">❌ Without a Pool</text>
+  <text x="190" y="121" text-anchor="middle" font-size="11" fill="#888">Every request from every user opens its own connection</text>
 
   <!-- Requests -->
   <rect x="48" y="135" width="118" height="28" fill="#ffdddd" rx="6" stroke="#ffaaaa" stroke-width="1.5"/>
@@ -30,16 +36,19 @@
   <text x="107" y="324" text-anchor="middle" font-size="10" fill="#888">100 new connections</text>
 
   <!-- Cost labels -->
-  <text x="175" y="151" font-size="10" fill="#cc3333">opens new conn (+50ms)</text>
-  <text x="175" y="187" font-size="10" fill="#cc3333">opens new conn (+50ms)</text>
-  <text x="175" y="223" font-size="10" fill="#cc3333">opens new conn (+50ms)</text>
-  <text x="175" y="259" font-size="10" fill="#cc3333">opens new conn (+50ms)</text>
+  <text x="207" y="151" text-anchor="middle" font-size="10" fill="#cc3333">+50ms</text>
+  <text x="207" y="187" text-anchor="middle" font-size="10" fill="#cc3333">+50ms</text>
+  <text x="207" y="223" text-anchor="middle" font-size="10" fill="#cc3333">+50ms</text>
+  <text x="207" y="259" text-anchor="middle" font-size="10" fill="#cc3333">+50ms</text>
 
   <!-- DB cylinder -->
-  <ellipse cx="290" cy="215" rx="44" ry="16" fill="#ffb3b3" stroke="#ff8080" stroke-width="2"/>
   <rect x="246" y="215" width="88" height="38" fill="#ffb3b3" stroke="#ff8080" stroke-width="2"/>
-  <ellipse cx="290" cy="253" rx="44" ry="16" fill="#ffb3b3" stroke="#ff8080" stroke-width="2"/>
-  <text x="290" y="238" text-anchor="middle" font-size="12" font-weight="bold" fill="#cc0000">DB</text>
+  <ellipse cx="290" cy="253" rx="44" ry="16" fill="#ffb3b3" stroke="none"/>
+  <path d="M 246,253 A 44,16 0 0,0 334,253" fill="none" stroke="#ff8080" stroke-width="2"/>
+  <ellipse cx="290" cy="215" rx="44" ry="16" fill="#ffb3b3" stroke="none"/>
+  <path d="M 246,215 A 44,16 0 0,0 334,215" fill="none" stroke="#ff8080" stroke-width="2"/>
+  <path d="M 246,215 A 44,16 0 0,1 334,215" fill="none" stroke="#ff8080" stroke-width="2"/>
+  <text x="290" y="252" text-anchor="middle" font-size="12" font-weight="bold" fill="#cc0000">DB</text>
 
   <!-- Arrows -->
   <line x1="168" y1="149" x2="248" y2="220" stroke="#cc3333" stroke-width="1.2" stroke-dasharray="4"/>
@@ -47,75 +56,67 @@
   <line x1="168" y1="221" x2="248" y2="234" stroke="#cc3333" stroke-width="1.2" stroke-dasharray="4"/>
   <line x1="168" y1="257" x2="248" y2="242" stroke="#cc3333" stroke-width="1.2" stroke-dasharray="4"/>
 
-  <rect x="48" y="340" width="298" height="78" fill="#ffb3b3" rx="6"/>
-  <text x="197" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#cc0000">What happens under load:</text>
-  <text x="197" y="375" text-anchor="middle" font-size="11" fill="#cc0000">The DB has a max connection limit.</text>
-  <text x="197" y="391" text-anchor="middle" font-size="11" fill="#cc0000">100 users all opening connections at once</text>
-  <text x="197" y="407" text-anchor="middle" font-size="11" fill="#cc0000">= timeouts, failures, errors. 💥</text>
+  <rect x="48" y="340" width="284" height="78" fill="#ffb3b3" rx="6"/>
+  <text x="190" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#cc0000">What happens under load:</text>
+  <text x="190" y="375" text-anchor="middle" font-size="11" fill="#cc0000">The DB has a max connection limit.</text>
+  <text x="190" y="391" text-anchor="middle" font-size="11" fill="#cc0000">100 users all opening connections at once</text>
+  <text x="190" y="407" text-anchor="middle" font-size="11" fill="#cc0000">= timeouts, failures, errors. 💥</text>
 
   <!-- ====== RIGHT: With Pool ====== -->
-  <rect x="425" y="75" width="345" height="355" fill="#f0fff4" rx="12" stroke="#b3f0c8" stroke-width="2"/>
-  <text x="597" y="103" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a7a3c">✅ With a Pool</text>
-  <text x="597" y="121" text-anchor="middle" font-size="11" fill="#888">Connections are opened once at startup and reused</text>
+  <rect x="400" y="75" width="390" height="355" fill="#f0fff4" rx="12" stroke="#b3f0c8" stroke-width="2"/>
+  <text x="595" y="103" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a7a3c">✅ With a Pool</text>
+  <text x="595" y="121" text-anchor="middle" font-size="11" fill="#888">Connections are opened once at startup and reused</text>
 
   <!-- Requests -->
-  <rect x="440" y="135" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
-  <text x="499" y="153" text-anchor="middle" font-size="11" fill="#333">User 1's request</text>
+  <rect x="415" y="155" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="474" y="173" text-anchor="middle" font-size="11" fill="#333">User 1's request</text>
 
-  <rect x="440" y="171" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
-  <text x="499" y="189" text-anchor="middle" font-size="11" fill="#333">User 2's request</text>
+  <rect x="415" y="191" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="474" y="209" text-anchor="middle" font-size="11" fill="#333">User 2's request</text>
 
-  <rect x="440" y="207" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
-  <text x="499" y="225" text-anchor="middle" font-size="11" fill="#333">User 3's request</text>
+  <rect x="415" y="227" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="474" y="245" text-anchor="middle" font-size="11" fill="#333">User 3's request</text>
 
-  <rect x="440" y="243" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
-  <text x="499" y="261" text-anchor="middle" font-size="11" fill="#333">User 4's request</text>
+  <rect x="415" y="263" width="118" height="28" fill="#d4edda" rx="6" stroke="#8fd6a8" stroke-width="1.5"/>
+  <text x="474" y="281" text-anchor="middle" font-size="11" fill="#333">User 4's request</text>
 
   <!-- Pool box -->
-  <rect x="568" y="128" width="100" height="165" fill="#fff9e6" rx="8" stroke="#ffd700" stroke-width="2"/>
-  <text x="618" y="150" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8860b">🏊 Pool</text>
-  <text x="618" y="164" text-anchor="middle" font-size="9" fill="#888">opened at startup</text>
+  <rect x="560" y="148" width="100" height="165" fill="#fff9e6" rx="8" stroke="#ffd700" stroke-width="2"/>
+  <text x="610" y="170" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8860b">🏊 Pool</text>
+  <text x="610" y="184" text-anchor="middle" font-size="9" fill="#888">opened at startup</text>
 
-  <rect x="576" y="170" width="84" height="22" fill="#ffd700" rx="4"/>
-  <text x="618" y="185" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
+  <rect x="568" y="190" width="84" height="22" fill="#ffd700" rx="4"/>
+  <text x="610" y="205" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
 
-  <rect x="576" y="198" width="84" height="22" fill="#ffd700" rx="4"/>
-  <text x="618" y="213" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
+  <rect x="568" y="218" width="84" height="22" fill="#ffd700" rx="4"/>
+  <text x="610" y="233" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
 
-  <rect x="576" y="226" width="84" height="22" fill="#ffd700" rx="4"/>
-  <text x="618" y="241" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
+  <rect x="568" y="246" width="84" height="22" fill="#ffd700" rx="4"/>
+  <text x="610" y="261" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
 
-  <rect x="576" y="254" width="84" height="22" fill="#ffd700" rx="4"/>
-  <text x="618" y="269" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
+  <rect x="568" y="274" width="84" height="22" fill="#ffd700" rx="4"/>
+  <text x="610" y="289" text-anchor="middle" font-size="10" fill="#333">conn ready ✓</text>
 
   <!-- Arrows requests to pool -->
-  <line x1="560" y1="149" x2="568" y2="181" stroke="#1a7a3c" stroke-width="1.5"/>
-  <line x1="560" y1="185" x2="568" y2="209" stroke="#1a7a3c" stroke-width="1.5"/>
-  <line x1="560" y1="221" x2="568" y2="237" stroke="#1a7a3c" stroke-width="1.5"/>
-  <line x1="560" y1="257" x2="568" y2="265" stroke="#1a7a3c" stroke-width="1.5"/>
-
-  <!-- Reuse labels -->
-  <text x="562" y="143" font-size="9" fill="#1a7a3c">reuse →</text>
-  <text x="562" y="179" font-size="9" fill="#1a7a3c">reuse →</text>
-  <text x="562" y="215" font-size="9" fill="#1a7a3c">reuse →</text>
-  <text x="562" y="251" font-size="9" fill="#1a7a3c">reuse →</text>
+  <line x1="535" y1="169" x2="560" y2="201" stroke="#1a7a3c" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="535" y1="205" x2="560" y2="229" stroke="#1a7a3c" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="535" y1="241" x2="560" y2="257" stroke="#1a7a3c" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="535" y1="277" x2="560" y2="285" stroke="#1a7a3c" stroke-width="1.5" stroke-dasharray="4"/>
 
   <!-- DB cylinder -->
-  <ellipse cx="740" cy="210" rx="22" ry="8" fill="#b3f0c8" stroke="#4caf50" stroke-width="2"/>
-  <rect x="718" y="210" width="44" height="20" fill="#b3f0c8" stroke="#4caf50" stroke-width="2"/>
-  <ellipse cx="740" cy="230" rx="22" ry="8" fill="#b3f0c8" stroke="#4caf50" stroke-width="2"/>
-  <text x="740" y="224" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a7a3c">DB</text>
+  <rect x="700" y="216" width="64" height="28" fill="#b3f0c8" stroke="#4caf50" stroke-width="2"/>
+  <ellipse cx="732" cy="244" rx="32" ry="12" fill="#b3f0c8" stroke="none"/>
+  <path d="M 700,244 A 32,12 0 0,0 764,244" fill="none" stroke="#4caf50" stroke-width="2"/>
+  <ellipse cx="732" cy="216" rx="32" ry="12" fill="#b3f0c8" stroke="none"/>
+  <path d="M 700,216 A 32,12 0 0,0 764,216" fill="none" stroke="#4caf50" stroke-width="2"/>
+  <path d="M 700,216 A 32,12 0 0,1 764,216" fill="none" stroke="#4caf50" stroke-width="2"/>
+  <text x="732" y="234" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">DB</text>
 
-  <line x1="670" y1="210" x2="716" y2="210" stroke="#1a7a3c" stroke-width="2" marker-end="url(#garrow2)"/>
-  <defs>
-    <marker id="garrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#1a7a3c"/>
-    </marker>
-  </defs>
+  <line x1="662" y1="230" x2="697" y2="230" stroke="#1a7a3c" stroke-width="2" marker-end="url(#garrow2)"/>
 
-  <text x="693" y="204" text-anchor="middle" font-size="9" fill="#1a7a3c">shared</text>
+  <text x="678" y="224" text-anchor="middle" font-size="9" fill="#1a7a3c">shared</text>
 
-  <rect x="440" y="340" width="310" height="78" fill="#8fd6a8" rx="6"/>
+  <rect x="415" y="340" width="360" height="78" fill="#8fd6a8" rx="6"/>
   <text x="595" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">What happens under load:</text>
   <text x="595" y="375" text-anchor="middle" font-size="11" fill="#1a7a3c">Requests grab an available connection,</text>
   <text x="595" y="391" text-anchor="middle" font-size="11" fill="#1a7a3c">use it, and return it to the pool.</text>
