@@ -1,7 +1,7 @@
 # Scenario 1: Connection Pools and Database Indexes
 
 **Difficulty:** Entry Level  
-**Concepts:** Connection Pooling, Database Indexes
+**Concepts:** Connection Pooling, Database Indexes  
 **Time:** ~45 minutes
 
 ---
@@ -95,7 +95,7 @@ Grafana is your live metrics dashboard. You'll use it to watch what happens to t
 1. Hover your mouse over the link.
 1. Click the globe 🌐 icon next to it — this opens Grafana in your browser.
 1. Login with **admin / admin**.
-   a. If you are prompted to change your password, you can disregard this.
+   1. If you are prompted to change your password, you can disregard this.
 1. In the left sidebar click **Dashboards**.
 1. Click **Scenario 1 — Connection Pools and Database Indexes**.
 
@@ -357,34 +357,33 @@ You didn't just read about these concepts. You watched them fail in real time, r
 
 **Why use a Pool instead of a direct connection to the database?**
 
-`pg` has a `Client` class for a single direct connection. For a script that runs once and exits, that's fine. For a web server, it has two problems: if two async requests try to use the same `Client` at the same time you get errors, and if the database connection drops for any reason the `Client` is just broken — you have to write your own reconnection logic. A Pool handles both: it queues concurrent requests and automatically replaces dead connections.
+- `pg` has a `Client` class for a single direct connection. For a script that runs once and exits, that's fine. For a web server, it has two problems: if two async requests try to use the same `Client` at the same time you get errors, and if the database connection drops for any reason the `Client` is just broken — you have to write your own reconnection logic. A Pool handles both: it queues concurrent requests and automatically replaces dead connections.
 
 **Why can't you just increase `max` and the timeout in `getDbConnection()` instead of replacing it with a shared pool?**
 
-The problem isn't the numbers — it's that `getDbConnection()` is called on every request, which means every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. If each pool has `max: 100`, you're trying to open 10,000 connections against a database that only allows 100. You've made it worse. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. When all connections are busy, requests queue and wait — none of them fail.
+- The problem isn't the numbers — it's that `getDbConnection()` is called on every request, which means every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. If each pool has `max: 100`, you're trying to open 10,000 connections against a database that only allows 100. You've made it worse. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. When all connections are busy, requests queue and wait — none of them fail.
 
 **The broken code uses a Pool too — just with `max: 1`. Why isn't that enough?**
 
-The problem isn't the pool size — it's that `getDbConnection()` is called on every request, so every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. Raising `max` to 100 would make it worse — you'd be trying to open 10,000 connections against a database that only allows 100. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. Requests that can't get one immediately wait in a queue.
+- The problem isn't the pool size — it's that `getDbConnection()` is called on every request, so every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. Raising `max` to 100 would make it worse — you'd be trying to open 10,000 connections against a database that only allows 100. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. Requests that can't get one immediately wait in a queue.
 
 **Why did `connectionTimeoutMillis` increase from 150ms to 2000ms?**
 
-With the shared pool, requests queue when all connections are busy. `connectionTimeoutMillis` is how long a request will wait in that queue before giving up. Each request takes ~500ms to complete due to the slow query — so a queued request might wait that long just to get a connection. At 150ms it gives up before it ever gets one, defeating the point of the queue. 2000ms gives requests enough time to wait their turn and succeed.
+- With the shared pool, requests queue when all connections are busy. `connectionTimeoutMillis` is how long a request will wait in that queue before giving up. Each request takes ~500ms to complete due to the slow query — so a queued request might wait that long just to get a connection. At 150ms it gives up before it ever gets one, defeating the point of the queue. 2000ms gives requests enough time to wait their turn and succeed.
 
 **Why is `idleTimeoutMillis` new — it wasn't in the broken code?**
 
-The broken code never needed it because every pool was created, used once, and immediately destroyed. There was nothing to idle. A shared pool holds connections open permanently so they're ready to reuse. Without `idleTimeoutMillis`, if traffic drops off the pool holds open 10 connections to PostgreSQL forever, wasting resources on both sides. 30 seconds means: close a connection that hasn't been used in 30 seconds. Long enough to survive a brief quiet period without killing connections you're about to need, short enough not to hold resources indefinitely.
+- The broken code never needed it because every pool was created, used once, and immediately destroyed. There was nothing to idle. A shared pool holds connections open permanently so they're ready to reuse. Without `idleTimeoutMillis`, if traffic drops off the pool holds open 10 connections to PostgreSQL forever, wasting resources on both sides. 30 seconds means: close a connection that hasn't been used in 30 seconds. Long enough to survive a brief quiet period without killing connections you're about to need, short enough not to hold resources indefinitely.
 
 **Why are we running SQL directly in psql instead of using a migration?**
 
-In a real production codebase you'd never run `CREATE INDEX` directly against the database. You'd write it as a migration — a versioned SQL file (e.g. `0003_add_idx_posts_created_at.sql`) committed to the repo and applied automatically by a migration tool like Flyway or Liquibase. That way the change is tracked, reproducible, and applied consistently across every environment. This scenario skips migrations because they add tooling and setup complexity that would distract from the actual lesson — indexes. The raw psql approach gets you to the same outcome faster in a learning context.
+- In a real production codebase you'd never run `CREATE INDEX` directly against the database. You'd write it as a migration — a versioned SQL file (e.g. `0003_add_idx_posts_created_at.sql`) committed to the repo and applied automatically by a migration tool like Flyway or Liquibase. That way the change is tracked, reproducible, and applied consistently across every environment. This scenario skips migrations because they add tooling and setup complexity that would distract from the actual lesson — indexes. The raw psql approach gets you to the same outcome faster in a learning context.
 
 **What is `EXPLAIN ANALYZE` and why does it matter?**
 
-`EXPLAIN ANALYZE` is a command you put in front of any SQL query to get a report on exactly how PostgreSQL executed it. `EXPLAIN` alone tells you the _plan_ — what PostgreSQL intends to do. `ANALYZE` actually runs the query and tells you what it _did do_, including real timing. Together they show you two things:
-
-- **Seq Scan** — PostgreSQL read every row in the table from top to bottom to find what you asked for. This is the slow path. A table with 10,000 rows means 10,000 reads on every request, and it gets worse as the table grows.
-- **Index Scan** — PostgreSQL used an index to jump directly to the matching rows, the same way a book index lets you skip to the right page instead of reading every page. This is the fast path.
+- `EXPLAIN ANALYZE` is a command you put in front of any SQL query to get a report on exactly how PostgreSQL executed it. `EXPLAIN` alone tells you the _plan_ — what PostgreSQL intends to do. `ANALYZE` actually runs the query and tells you what it _did do_, including real timing. Together they show you two things:
+  - **Seq Scan** — PostgreSQL read every row in the table from top to bottom to find what you asked for. This is the slow path. A table with 10,000 rows means 10,000 reads on every request, and it gets worse as the table grows.
+  - **Index Scan** — PostgreSQL used an index to jump directly to the matching rows, the same way a book index lets you skip to the right page instead of reading every page. This is the fast path.
 
 ---
 
@@ -403,59 +402,43 @@ In a real production codebase you'd never run `CREATE INDEX` directly against th
 
 ---
 
----
-
 ## Answer Key
 
 Use this after you've written your own answers. Don't skip to this first — the value is in thinking it through yourself before checking.
 
----
-
 **Q1: What does `getDbConnection()` do? When does it get called?**
 
-`getDbConnection()` creates a brand new PostgreSQL connection pool and returns it. It gets called at the start of every route handler — every time a request hits `/feed`, `/posts`, or `/users/:id/posts`. That means every single HTTP request creates its own pool from scratch, uses it once, and closes it.
-
----
+- `getDbConnection()` creates a brand new PostgreSQL connection pool and returns it. It gets called at the start of every route handler — every time a request hits `/feed`, `/posts`, or `/users/:id/posts`. That means every single HTTP request creates its own pool from scratch, uses it once, and closes it.
 
 **Q2: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows without one?**
 
-`db/schema.sql` defines no index on `created_at`. Without one, PostgreSQL reads every row in the table on every `/feed` request to find and sort the results. With 10,000 rows it's slow but survivable. With 1,000,000 rows it reads a million rows to return 20 — query time grows linearly with the table, and eventually the app becomes unusable.
-
----
+- `db/schema.sql` defines no index on `created_at`. Without one, PostgreSQL reads every row in the table on every `/feed` request to find and sort the results. With 10,000 rows it's slow but survivable. With 1,000,000 rows it reads a million rows to return 20 — query time grows linearly with the table, and eventually the app becomes unusable.
 
 **Q3: Before running anything — what do you think will happen when 100 users hit the server at the same time? Make a guess, even if you're not sure.**
 
-Most requests will fail. Each of the 100 users triggers a new pool with `max: 1` and a 150ms timeout. All 100 try to open a connection to PostgreSQL simultaneously. Most of them can't get one within 150ms and return an error immediately. The server can't keep up.
-
----
+- Most requests will fail. Each of the 100 users triggers a new pool with `max: 1` and a 150ms timeout. All 100 try to open a connection to PostgreSQL simultaneously. Most of them can't get one within 150ms and return an error immediately. The server can't keep up.
 
 **Q4: Your results show most requests failed. Looking at `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 100 concurrent requests.**
 
-Each of the 100 concurrent requests calls `getDbConnection()` and creates its own independent pool — none of them share connections. All 100 pools compete to open a connection to PostgreSQL at the same time. Each pool only allows 1 connection and gives up after 150ms. The requests that don't get a connection within that window fail immediately with a timeout error. The database is barely touched — the failure happens before queries even run.
-
----
+- Each of the 100 concurrent requests calls `getDbConnection()` and creates its own independent pool — none of them share connections. All 100 pools compete to open a connection to PostgreSQL at the same time. Each pool only allows 1 connection and gives up after 150ms. The requests that don't get a connection within that window fail immediately with a timeout error. The database is barely touched — the failure happens before queries even run.
 
 **Q5: Compare all three options, which option fixes the root cause? Which ones just treat the symptom?**
 
-Option A fixes the root cause. The problem is that creating a new pool per request is wasteful and unsustainable — a shared pool eliminates this entirely.
+- Option A fixes the root cause. The problem is that creating a new pool per request is wasteful and unsustainable — a shared pool eliminates this entirely.
 
-Option B treats the symptom. Raising `max` to 100 still creates a new pool per request. This creates 100 connections per request which is wasteful and will exhaust the database's connection limit fast. 100 pools × 100 connections = 10,000 connection attempts against a database that allows 100. You've made it worse.
+- Option B treats the symptom. Raising `max` to 100 still creates a new pool per request. This creates 100 connections per request which is wasteful and will exhaust the database's connection limit fast. 100 pools × 100 connections = 10,000 connection attempts against a database that allows 100. You've made it worse.
 
-Option C treats a different symptom. Rate limiting stops some requests from failing, but the underlying connection inefficiency is still there. You're hiding the problem, not fixing it.
-
----
+- Option C treats a different symptom. Rate limiting stops some requests from failing, but the underlying connection inefficiency is still there. You're hiding the problem, not fixing it.
 
 **Q6: Why would sorting 10,000 rows with no index be slow? What about 1,000,000 rows?**
 
-Without an index, the database does a sequential scan — it reads every row in the table to find and sort the results. At 10,000 rows it reads 10,000 rows just to return 20. At 1,000,000 rows it reads all 1,000,000 rows to return 20. The work grows linearly with the table size. An index gives the database a pre-sorted shortcut so it can jump directly to the rows it needs.
-
----
+- Without an index, the database does a sequential scan — it reads every row in the table to find and sort the results. At 10,000 rows it reads 10,000 rows just to return 20. At 1,000,000 rows it reads all 1,000,000 rows to return 20. The work grows linearly with the table size. An index gives the database a pre-sorted shortcut so it can jump directly to the rows it needs.
 
 **Q7: For this system right now — compare all three option, which makes the most sense and why? What would change your answer if this table had 10 million rows and 10,000 writes per second?**
 
-Option B — the index — makes the most sense here. The table is read far more than it's written to, so the cost of maintaining an index on inserts is negligible compared to the read benefit.
+- Option B — the index — makes the most sense here. The table is read far more than it's written to, so the cost of maintaining an index on inserts is negligible compared to the read benefit.
 
-At 10 million rows and 10,000 writes per second, the answer changes. That write volume means every INSERT updates the index — the overhead becomes meaningful. At that scale Option A (caching) reduces database reads dramatically, and Option C (cursor-based pagination) avoids the full sort entirely. The right answer depends on the actual numbers.
+- At 10 million rows and 10,000 writes per second, the answer changes. That write volume means every INSERT updates the index — the overhead becomes meaningful. At that scale Option A (caching) reduces database reads dramatically, and Option C (cursor-based pagination) avoids the full sort entirely. The right answer depends on the actual numbers.
 
 ---
 
