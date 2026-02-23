@@ -33,8 +33,8 @@
   <text x="107" y="261" text-anchor="middle" font-size="11" fill="#333">User 4's request</text>
 
   <text x="107" y="292" text-anchor="middle" font-size="14" fill="#cc3333">⋮</text>
-  <text x="107" y="310" text-anchor="middle" font-size="10" fill="#888">100 users =</text>
-  <text x="107" y="324" text-anchor="middle" font-size="10" fill="#888">100 new connections</text>
+  <text x="107" y="310" text-anchor="middle" font-size="10" fill="#888">200 users =</text>
+  <text x="107" y="324" text-anchor="middle" font-size="10" fill="#888">200 new connections</text>
 
   <!-- Cost labels (left) -->
   <text x="207" y="151" text-anchor="middle" font-size="10" fill="#cc3333">+50ms</text>
@@ -61,7 +61,7 @@
   <rect x="48" y="340" width="284" height="78" fill="#ffb3b3" rx="6"/>
   <text x="190" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#cc0000">What happens under load:</text>
   <text x="190" y="375" text-anchor="middle" font-size="11" fill="#cc0000">The DB has a max connection limit.</text>
-  <text x="190" y="391" text-anchor="middle" font-size="11" fill="#cc0000">100 users all opening connections at once</text>
+  <text x="190" y="391" text-anchor="middle" font-size="11" fill="#cc0000">200 users all opening connections at once</text>
   <text x="190" y="407" text-anchor="middle" font-size="11" fill="#cc0000">= timeouts, failures, errors. 💥</text>
 
   <!-- ====== RIGHT: With Pool ====== -->

@@ -27,7 +27,7 @@
   <circle cx="120" cy="140" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
   <text x="120" y="145" text-anchor="middle" font-size="16">👤</text>
 
-  <text x="80" y="188" text-anchor="middle" font-size="11" fill="#888">100 concurrent users</text>
+  <text x="80" y="188" text-anchor="middle" font-size="11" fill="#888">200 concurrent users</text>
 
   <!-- Arrows: Users to Server -->
   <line x1="145" y1="148" x2="245" y2="185" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>

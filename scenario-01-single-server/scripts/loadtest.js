@@ -6,7 +6,7 @@ console.log("=".repeat(60));
 console.log("LOAD TEST — Single Server Scenario");
 console.log("=".repeat(60));
 console.log(`Target: ${BASE_URL}/feed`);
-console.log("Connections: 100 concurrent users");
+console.log("Connections: 200 concurrent users");
 console.log("Duration: 30 seconds");
 console.log("=".repeat(60));
 console.log("");
@@ -14,7 +14,7 @@ console.log("");
 const instance = autocannon(
   {
     url: `${BASE_URL}/feed`,
-    connections: 100,
+    connections: 200,
     duration: 30,
     timeout: 5,
   },

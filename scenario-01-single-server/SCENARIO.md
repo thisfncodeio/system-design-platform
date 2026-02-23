@@ -2,7 +2,7 @@
 
 **Difficulty:** Entry Level  
 **Concepts:** Connection Pooling, Database Indexes  
-**Time:** ~60–75 minutes
+**Time:** ~45–60 minutes
 
 ---
 
@@ -32,7 +32,7 @@ Your tech lead said _"something's wrong with the feed endpoint."_ That's it. No 
 
 Before reading on — take two minutes and answer this honestly:
 
-**If this were your actual job, what would your first three steps be?**
+**You need to figure out what's wrong. What would your first three steps be to investigate this?**
 
 Don't worry about being right. The point is to notice how you would instinctively approach this problem.
 
@@ -52,7 +52,7 @@ Don't worry about being right. The point is to notice how you would instinctivel
 
 **1. Check the metrics and logs first.**
 
-Before reading a single line of code, they'd look at what's actually happening — error rates, response times, which endpoint is failing. Tools like Grafana (which you have in this scenario) show you the symptoms in real time. Symptoms tell you where to look.
+Before reading a single line of code, they'd look at what's actually happening — error rates, response times, which endpoint is failing. Tools like Datadog, New Relic, Grafana (which you have in this scenario), or some other observation tool, show you the symptoms in real time. Symptoms tell you where to look.
 
 **2. Reproduce the failure.**
 
@@ -60,7 +60,7 @@ They'd try to trigger the problem on purpose. If it happens under load, they'd r
 
 **3. Narrow down the bottleneck.**
 
-Is it slow? Is it failing? Is it only under load? The database? The code? They'd form a hypothesis based on what they saw in step 1, then go look at the code with that specific question in mind — not just generally "what's wrong here?"
+Is it slow? Is it failing? Is it only under load? The database? The code? They'd form a hypothesis based on what they saw in step 1, then go look at the code with that specific question in mind — not just a general _"what's wrong here?"_
 
 Notice what they don't do: they don't open the code and start reading hoping to spot something. They let the data tell them where to look.
 
@@ -104,7 +104,7 @@ _Fig 1.2: Database Index Diagram_
 
 Opening a connection to a database takes time — roughly 50ms. A connection pool keeps connections open and ready to reuse rather than creating a new one for every request. It grows as demand increases, up to a maximum you set (`max`), and closes idle connections when traffic drops.
 
-Without pooling, every request to your server has to open its own connection. PostgreSQL has a hard limit on how many it will accept at once (default: 100). Doing it 100 times simultaneously pushes the database to that ceiling and it starts refusing connections. With a pool, if the set max connections are busy, new requests wait their turn in a queue rather than failing immediately.
+Without pooling, every request to your server has to open its own connection. PostgreSQL has a hard limit on how many it will accept at once (default: 100). Doing it 200 times simultaneously blows past that ceiling and it starts refusing connections. With a pool, if the set max connections are busy, new requests wait their turn in a queue rather than failing immediately.
 
 ![Connection Pool Diagram](assets/diagram-connection-pool.svg)
 
@@ -116,11 +116,11 @@ _Fig 1.3: Connection Pool Diagram_
 
 Everything is already running. You don't need to install anything.
 
-| Service           | Where     | What it is                                             |
-| ----------------- | --------- | ------------------------------------------------------ |
-| Feed API          | Port 3000 | The app you're investigating                           |
-| Grafana Dashboard | Port 3002 | Live metrics — watch this during load tests            |
-| Prometheus        | Port 9090 | Collects metrics from the app; Grafana reads from here |
+| Service               | Where     | What it is                                             |
+| --------------------- | --------- | ------------------------------------------------------ |
+| Social Posts Feed API | Port 3000 | The app you're investigating                           |
+| Grafana Dashboard     | Port 3002 | Live metrics — watch this during load tests            |
+| Prometheus            | Port 9090 | Collects metrics from the app; Grafana reads from here |
 
 The server runs under **nodemon** — a standard Node.js dev tool that watches your source files and automatically restarts the server when you save a change. You'll see this in action when you fix `server.js` in Step 3.
 
@@ -157,7 +157,7 @@ You can't investigate what you can't see. Your first move is to trigger the prob
 
 Before you run anything — based only on the Situation description — what's your guess about what will happen?
 
-**Q1: What do you think will happen when 100 users hit `/feed` at the same time? Make a guess, even if you're not sure.**
+**Q1: What do you think will happen when 200 users hit `/feed` at the same time? Make a guess, even if you're not sure.**
 
 ```
 Your guess:
@@ -171,7 +171,7 @@ Now open Grafana (see instructions above if you haven't yet), then run the load 
 npm run loadtest
 ```
 
-This sends 100 concurrent users to the `/feed` endpoint for 30 seconds. That's not extreme traffic — a real app might handle thousands — but it's enough to reveal what's wrong here.
+This runs a load test script (`scripts/loadtest.js`) that sends 200 concurrent users to the `/feed` endpoint for 30 seconds. That's not extreme traffic — a real app might handle thousands — but it's enough to reveal what's wrong here.
 
 **While it runs:** watch all four Grafana panels. You'll see the request rate spike, latency climb, and the error rate shoot up almost immediately.
 
@@ -204,7 +204,7 @@ Your answer:
 
 ```
 
-**Q3: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows without one?**
+**Q3: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows? Why?**
 
 ```
 Your answer:
@@ -212,7 +212,7 @@ Your answer:
 
 ```
 
-**Q4: Your load test showed most requests failed. Now that you've read `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 100 concurrent requests.**
+**Q4: Your load test showed most requests failed. Now that you've read `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 200 concurrent requests.**
 
 ```javascript
 function getDbConnection() {
@@ -236,11 +236,11 @@ Your answer:
 Your load test investigation and code review pointed to two problems:
 
 1. **Reliability** — `getDbConnection()` creates a new pool on every request. Under load, most requests time out before getting a connection — they fail before any work is done.
-2. **Latency** — The `/feed` query sorts by `created_at` with no index. PostgreSQL scans every row on every request and gets slower as the table grows.
+2. **Latency** — The `/feed` query sorting by `created_at` is extremely slow. PostgreSQL scans every row on every request and gets slower as the table grows.
 
 ### Fix 1: Reliability
 
-**The problem:** Every request creates a brand new pool with only 1 connection allowed and a 150ms timeout. When 100 requests arrive at once, 99 of them can't get a connection in time and fail immediately.
+**The problem:** Every request calls `getDbConnection()`, which creates a brand new pool from scratch with only 1 connection allowed and a 150ms timeout. When 200 requests arrive at once, 200 separate pools all try to open their own connection to PostgreSQL simultaneously. PostgreSQL can't handle that many connections being opened at once and starts refusing them.
 
 **Before you change anything — let's consider some possible solutions:**
 
@@ -281,7 +281,7 @@ function getDbConnection() {
 As a function, every time a request comes in, it runs `new Pool(...)` which creates a brand new pool from scratch. Each request gets its own isolated pool, so they never share connections. This causes three problems:
 
 1. **Opening a connection is slow.** Every pool has to dial up PostgreSQL fresh — TCP handshake, authentication, setup. Under load, that overhead adds up fast.
-2. **PostgreSQL has a global connection limit.** By default Postgres allows around 100 simultaneous connections total. If 80 requests hit the server at once, you're opening 80 connections to Postgres simultaneously. Postgres starts refusing new ones when it hits that limit.
+2. **PostgreSQL has a global connection limit.** By default Postgres allows around 100 simultaneous connections total. If 200 requests hit the server at once, you're trying to open 200 connections to Postgres — double what it allows. Postgres starts refusing new ones the moment it hits that limit.
 3. **All that work gets thrown away.** After each request finishes, `await db.end()` tears the pool down completely. The next request starts from zero again.
 
 `max: 1` means that pool can only ever hold one connection at a time.
@@ -493,11 +493,11 @@ You didn't just read about these concepts. You watched them fail in real time, r
 
 **Why can't you just increase `max` and the timeout in `getDbConnection()` instead of replacing it with a shared pool?**
 
-- The problem isn't the numbers — it's that `getDbConnection()` is called on every request, which means every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. If each pool has `max: 100`, you're trying to open 10,000 connections against a database that only allows 100. You've made it worse. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. When all connections are busy, requests queue and wait — none of them fail.
+- The problem isn't the numbers — it's that `getDbConnection()` is called on every request, which means every request creates its own independent pool. Pools don't share connections with each other. 200 concurrent requests means 200 separate pools each trying to open their own connections to PostgreSQL. If each pool has `max: 100`, you're trying to open 20,000 connections against a database that only allows 100. You've made it worse. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. When all connections are busy, requests queue and wait — none of them fail.
 
 **The broken code uses a Pool too — just with `max: 1`. Why isn't that enough?**
 
-- The problem isn't the pool size — it's that `getDbConnection()` is called on every request, so every request creates its own independent pool. Pools don't share connections with each other. 100 concurrent requests means 100 separate pools each trying to open their own connections to PostgreSQL. Raising `max` to 100 would make it worse — you'd be trying to open 10,000 connections against a database that only allows 100. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. Requests that can't get one immediately wait in a queue.
+- The problem isn't the pool size — it's that `getDbConnection()` is called on every request, so every request creates its own independent pool. Pools don't share connections with each other. 200 concurrent requests means 200 separate pools each trying to open their own connections to PostgreSQL. Raising `max` to 100 would make it worse — you'd be trying to open 20,000 connections against a database that only allows 100. A shared pool fixes this because there is ONE pool, created once at startup, and every request borrows a connection from it. Requests that can't get one immediately wait in a queue.
 
 **Why did `connectionTimeoutMillis` increase from 150ms to 2000ms?**
 
@@ -542,21 +542,21 @@ You didn't just read about these concepts. You watched them fail in real time, r
 
 Use this after you've written your own answers. Don't skip to this first — the value is in thinking it through yourself before checking.
 
-**Q1: What do you think will happen when 100 users hit `/feed` at the same time? Make a guess, even if you're not sure.**
+**Q1: What do you think will happen when 200 users hit `/feed` at the same time? Make a guess, even if you're not sure.**
 
-- Most requests will fail. Each of the 100 users triggers a new pool with `max: 1` and a 150ms timeout. All 100 try to open a connection to PostgreSQL simultaneously. Most of them can't get one within 150ms and return an error immediately. The server can't keep up.
+- Most requests will fail. Each of the 200 users triggers a new pool with `max: 1` and a 150ms timeout. All 200 try to open a connection to PostgreSQL simultaneously — but PostgreSQL only allows 100. At least half are refused outright, and many of the rest can't connect within 150ms. The server can't keep up.
 
 **Q2: What does `getDbConnection()` do? When does it get called?**
 
 - `getDbConnection()` creates a brand new PostgreSQL connection pool and returns it. It gets called at the start of every route handler — every time a request hits `/feed`, `/posts`, or `/users/:id/posts`. That means every single HTTP request creates its own pool from scratch, uses it once, and closes it.
 
-**Q3: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows without one?**
+**Q3: The `/feed` endpoint sorts posts by `created_at DESC`. Open `db/schema.sql` and look at the posts table. What do you think happens to query speed as the posts table grows to millions of rows? Why?**
 
-- `db/schema.sql` defines no index on `created_at`. Without one, PostgreSQL reads every row in the table on every `/feed` request to find and sort the results. With 10,000 rows it's slow but survivable. With 1,000,000 rows it reads a million rows to return 20 — query time grows linearly with the table, and eventually the app becomes unusable.
+- PostgreSQL reads every row in the table on every `/feed` request to find and sort the results. With 10,000 rows it's slow but survivable. With 1,000,000 rows the query reads a million rows. Query speed would get worse linearly as the table grows, eventually causing the app to become unusable.
 
-**Q4: Your load test showed most requests failed. Now that you've read `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 100 concurrent requests.**
+**Q4: Your load test showed most requests failed. Now that you've read `getDbConnection()` — explain in your own words exactly why. Be specific about what is happening with each of the 200 concurrent requests.**
 
-- Each of the 100 concurrent requests calls `getDbConnection()` and creates its own independent pool — none of them share connections. All 100 pools compete to open a connection to PostgreSQL at the same time. Each pool only allows 1 connection and gives up after 150ms. The requests that don't get a connection within that window fail immediately with a timeout error. The database is barely touched — the failure happens before queries even run.
+- Each of the 200 concurrent requests calls `getDbConnection()` and creates its own independent pool — none of them share connections. All 200 pools compete to open a connection to PostgreSQL at the same time, but PostgreSQL only allows 100. At least half are refused outright. The rest each allow only 1 connection and give up after 150ms. The requests that don't get a connection within that window fail immediately with a timeout error. The database is barely touched — the failure happens before queries even run.
 
 **Q5: Part of being a good software engineer is identifying the pros and cons of possible solutions, what are the pros and cons of each solution above?**
 
@@ -566,7 +566,7 @@ Use this after you've written your own answers. Don't skip to this first — the
 
 - **Option B — Increase the per-request limit:**
   - **Pro:** Easy to apply — just change a number in the config. No structural refactor needed.
-  - **Con:** The underlying problem is still there — a new pool is still created for every request. Raising `max` to 100 means each of the 100 concurrent requests tries to open 100 connections: 100 pools × 100 connections = up to 10,000 simultaneous connection attempts against a database that allows 100. You've made the problem significantly worse while changing almost nothing.
+  - **Con:** The underlying problem is still there — a new pool is still created for every request. Raising `max` to 100 means each of the 200 concurrent requests tries to open 100 connections: 200 pools × 100 connections = up to 20,000 simultaneous connection attempts against a database that allows 100. You've made the problem significantly worse while changing almost nothing.
 
 - **Option C — Rate limit incoming requests:**
   - **Pro:** Prevents the server from being overwhelmed in the short term. Simple to add as middleware and useful as a general defensive layer regardless of which other fix you choose.
