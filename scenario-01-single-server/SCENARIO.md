@@ -28,7 +28,7 @@ _Fig 1.1: System Architecture Diagram_
 
 ## Diagnosis -- Before You Look at Any Code
 
-Your tech lead said _"something's wrong with the feed endpoint."_ That's it. No hint about what's wrong or where.
+Your tech lead said _"something's wrong with the feed endpoint."_ That's it. You know where — but not what's wrong or why.
 
 Before reading on — take two minutes and answer this honestly:
 

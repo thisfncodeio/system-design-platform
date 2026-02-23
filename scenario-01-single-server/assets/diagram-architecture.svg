@@ -1,4 +1,4 @@
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 408" font-family="'Segoe UI', Arial, sans-serif">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 378" font-family="'Segoe UI', Arial, sans-serif">
 
   <defs>
     <marker id="blue-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -10,77 +10,77 @@
   </defs>
 
   <!-- Background -->
-  <rect width="800" height="408" fill="#f8f9ff" rx="16"/>
+  <rect width="800" height="378" fill="#f8f9ff" rx="16"/>
 
   <!-- Title -->
   <text x="400" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">The System You're Working With</text>
 
   <!-- ====== USERS ====== -->
-  <text x="80" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Users</text>
+  <text x="80" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Users</text>
 
-  <circle cx="40" cy="140" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
-  <text x="40" y="145" text-anchor="middle" font-size="16">👤</text>
+  <circle cx="40" cy="110" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="40" y="115" text-anchor="middle" font-size="16">👤</text>
 
-  <circle cx="80" cy="155" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
-  <text x="80" y="160" text-anchor="middle" font-size="16">👤</text>
+  <circle cx="80" cy="125" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="80" y="130" text-anchor="middle" font-size="16">👤</text>
 
-  <circle cx="120" cy="140" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
-  <text x="120" y="145" text-anchor="middle" font-size="16">👤</text>
+  <circle cx="120" cy="110" r="16" fill="#dce8ff" stroke="#90b4f5" stroke-width="2"/>
+  <text x="120" y="115" text-anchor="middle" font-size="16">👤</text>
 
-  <text x="80" y="188" text-anchor="middle" font-size="11" fill="#888">200 concurrent users</text>
+  <text x="80" y="158" text-anchor="middle" font-size="11" fill="#888">200 concurrent users</text>
 
   <!-- Arrows: Users to Server -->
-  <line x1="145" y1="148" x2="245" y2="185" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <line x1="145" y1="155" x2="245" y2="200" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <line x1="145" y1="162" x2="245" y2="215" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <text x="185" y="163" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">each sends</text>
-  <text x="185" y="175" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">GET /feed</text>
+  <line x1="145" y1="118" x2="245" y2="155" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
+  <line x1="145" y1="125" x2="245" y2="170" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
+  <line x1="145" y1="132" x2="245" y2="185" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
+  <text x="185" y="133" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">each sends</text>
+  <text x="185" y="145" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">GET /feed</text>
 
   <!-- ====== SERVER ====== -->
-  <rect x="248" y="130" width="190" height="185" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2.5"/>
-  <text x="343" y="158" text-anchor="middle" font-size="13" font-weight="bold" fill="#b8860b">🖥️ Server</text>
-  <text x="343" y="175" text-anchor="middle" font-size="11" fill="#888">Node.js + Express</text>
+  <rect x="248" y="100" width="190" height="185" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2.5"/>
+  <text x="343" y="128" text-anchor="middle" font-size="13" font-weight="bold" fill="#b8860b">🖥️ Server</text>
+  <text x="343" y="145" text-anchor="middle" font-size="11" fill="#888">Node.js + Express</text>
 
-  <rect x="264" y="183" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
-  <text x="343" y="200" text-anchor="middle" font-size="11" fill="#555">GET /feed</text>
+  <rect x="264" y="153" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
+  <text x="343" y="170" text-anchor="middle" font-size="11" fill="#555">GET /feed</text>
 
-  <rect x="264" y="215" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
-  <text x="343" y="232" text-anchor="middle" font-size="11" fill="#555">POST /posts</text>
+  <rect x="264" y="185" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
+  <text x="343" y="202" text-anchor="middle" font-size="11" fill="#555">POST /posts</text>
 
-  <rect x="264" y="247" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
-  <text x="343" y="264" text-anchor="middle" font-size="10" fill="#555">GET /users/:id/posts</text>
+  <rect x="264" y="217" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
+  <text x="343" y="234" text-anchor="middle" font-size="10" fill="#555">GET /users/:id/posts</text>
 
-  <rect x="264" y="280" width="158" height="28" fill="#ffdddd" rx="5"/>
-  <text x="343" y="293" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ every single request from</text>
-  <text x="343" y="305" text-anchor="middle" font-size="9" fill="#cc3333">every user opens a NEW connection</text>
+  <rect x="264" y="250" width="158" height="28" fill="#ffdddd" rx="5"/>
+  <text x="343" y="263" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ every single request from</text>
+  <text x="343" y="275" text-anchor="middle" font-size="9" fill="#cc3333">every user opens a NEW connection</text>
 
   <!-- Arrow: Server to DB -->
-  <line x1="440" y1="222" x2="512" y2="222" stroke="#4caf50" stroke-width="2.5" marker-end="url(#green-arrow)"/>
-  <text x="476" y="213" text-anchor="middle" font-size="10" fill="#4caf50">query</text>
+  <line x1="440" y1="192" x2="512" y2="192" stroke="#4caf50" stroke-width="2.5" marker-end="url(#green-arrow)"/>
+  <text x="476" y="183" text-anchor="middle" font-size="10" fill="#4caf50">query</text>
 
   <!-- ====== DATABASE ====== -->
-  <rect x="514" y="130" width="190" height="185" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2.5"/>
-  <text x="609" y="158" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🗄️ Database</text>
-  <text x="609" y="175" text-anchor="middle" font-size="11" fill="#888">PostgreSQL</text>
+  <rect x="514" y="100" width="190" height="185" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2.5"/>
+  <text x="609" y="128" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🗄️ Database</text>
+  <text x="609" y="145" text-anchor="middle" font-size="11" fill="#888">PostgreSQL</text>
 
-  <rect x="530" y="183" width="158" height="42" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
-  <text x="609" y="200" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">users table</text>
-  <text x="609" y="218" text-anchor="middle" font-size="10" fill="#555">id, username, created_at</text>
+  <rect x="530" y="153" width="158" height="42" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
+  <text x="609" y="170" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">users table</text>
+  <text x="609" y="188" text-anchor="middle" font-size="10" fill="#555">id, username, created_at</text>
 
-  <rect x="530" y="231" width="158" height="52" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
-  <text x="609" y="248" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">posts table</text>
-  <text x="609" y="264" text-anchor="middle" font-size="10" fill="#555">id, user_id, content,</text>
-  <text x="609" y="278" text-anchor="middle" font-size="10" fill="#555">created_at</text>
+  <rect x="530" y="201" width="158" height="52" fill="#d4edda" rx="5" stroke="#8fd6a8" stroke-width="1"/>
+  <text x="609" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">posts table</text>
+  <text x="609" y="234" text-anchor="middle" font-size="10" fill="#555">id, user_id, content,</text>
+  <text x="609" y="248" text-anchor="middle" font-size="10" fill="#555">created_at</text>
 
-  <rect x="530" y="289" width="158" height="20" fill="#ffdddd" rx="5"/>
-  <text x="609" y="303" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ /feed query ORDER BY created_at</text>
+  <rect x="530" y="259" width="158" height="20" fill="#ffdddd" rx="5"/>
+  <text x="609" y="273" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ /feed query ORDER BY created_at</text>
 
   <!-- ====== SINGLE POINT OF FAILURE ====== -->
-  <rect x="240" y="328" width="472" height="28" fill="none" rx="8" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="5,3"/>
-  <text x="476" y="347" text-anchor="middle" font-size="11" fill="#cc3333">⚠️  The entire app runs on ONE machine</text>
+  <rect x="240" y="298" width="472" height="28" fill="none" rx="8" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="476" y="317" text-anchor="middle" font-size="11" fill="#cc3333">⚠️  The entire app runs on ONE machine</text>
 
   <!-- Bottom bar -->
-  <rect x="30" y="370" width="740" height="26" fill="#e8f4fd" rx="6"/>
-  <text x="400" y="387" text-anchor="middle" font-size="11" fill="#1a5276">You will fix both ⚠️ warnings above — and by the end of Scenario 4, understand why the dashed border matters too.</text>
+  <rect x="30" y="340" width="740" height="26" fill="#e8f4fd" rx="6"/>
+  <text x="400" y="357" text-anchor="middle" font-size="11" fill="#1a5276">You will fix both ⚠️ warnings above — and by the end of Scenario 4, understand why the dashed border matters too.</text>
 
 </svg>

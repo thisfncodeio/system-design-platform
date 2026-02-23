@@ -4,9 +4,9 @@ A hands-on system design exercise for entry-level engineers.
 
 You'll be dropped into a broken codebase, diagnose why it fails under load, and fix it — all in your browser. No installs. No setup. Just click and go.
 
-**Concepts:** Connection Pooling · Database Indexes · Single Points of Failure  
+**Concepts:** Connection Pooling, Database Indexes
 **Level:** Entry  
-**Time:** ~45 minutes
+**Time:** ~45–60 minutes
 
 ---
 
@@ -60,16 +60,17 @@ When you're done, you can close the browser tab. Your Codespace will pause autom
 - Read a real Node.js backend and understand how it works
 - Run a load test and watch the system fail in real time
 - Diagnose why it's failing
-- Apply two fixes and see the results change dramatically
-- Reflect on what's still broken and what you'd do next
+- Apply the fixes and see the results change dramatically
+- Compare your before and after results
 
 ---
 
 ## Files in This Project
 
 ```
-src/server.js              ← The broken backend. You'll work in here.
 SCENARIO.md                ← Your guided walkthrough. Start here.
+src/server.js              ← The broken backend. You'll work in here.
+src/server.comments.js    ← Same code, with detailed comments for non-JS developers.
 db/schema.sql              ← Database schema
 db/seed.js                 ← Populates the database with test data
 scripts/loadtest.js        ← The load test
