@@ -1,5 +1,5 @@
 {
-  "name": "scenario-01-single-server",
+  "name": "scenario-01-diagnosing-failures",
   "version": "1.0.0",
   "description": "System Design Scenario 1: Connection Pools and Database Indexes",
   "main": "src/server.js",

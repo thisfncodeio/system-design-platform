@@ -36,7 +36,7 @@ Work through these in order, or jump to the concept you need. Scenarios 1–4 bu
 
 | #   | Scenario                                                             | Concepts                                                           | Status   |
 | --- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | -------- |
-| 1   | [Connection Pools and Database Indexes](./scenario-01-single-server) | Connection Pooling · Database Indexes                              | ✅ Ready |
+| 1   | [Connection Pools and Database Indexes](./scenario-01-diagnosing-failures) | Connection Pooling · Database Indexes                              | ✅ Ready |
 | 2   | [Indexes and Slow Queries](./scenario-02-indexes)                    | Query Planning · Cardinality · EXPLAIN ANALYZE · Composite Indexes | ✅ Ready |
 | 3   | [Connection Pooling](./scenario-03-connection-pooling)               | Pool sizing · Timeouts · PostgreSQL connection ceiling             | ✅ Ready |
 | 4   | [Horizontal Scaling](./scenario-04-horizontal-scaling)               | CPU ceiling · Load balancing · nginx · Connection budget split     | ✅ Ready |
