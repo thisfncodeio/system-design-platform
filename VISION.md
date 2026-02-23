@@ -42,7 +42,7 @@ Each scenario only uses concepts introduced in previous ones. The separation bet
 
 **Crawling — understand how one server works and why it breaks**
 
-1. ✅ Single server + database (BUILT) — social feed app
+1. ✅ Diagnosing failures (BUILT) — social feed app
 2. ✅ Indexes and slow queries (BUILT) — e-commerce shop
 3. ✅ Connection pooling (BUILT) — job queue API
 4. ✅ Horizontal scaling (BUILT) — product catalog API
@@ -214,8 +214,8 @@ Considered and rejected. Managing 14+ separate repos is too much overhead. Monor
 **Combining indexes and connection pooling into one scenario**
 Scenario 1 introduces both briefly. We considered making Scenarios 2 and 3 go deeper on both together. Rejected — too much in one scenario, and the separation allows each concept to get a full load test and full diagnostic exercise.
 
-**Starting with connection pooling before single server**
-Considered putting connection pooling or indexes before the single server scenario since they're more foundational. Rejected — the single server scenario earns its place first because it establishes the mindset (production systems break under load) before going deep on any specific concept. Without that hook, indexes and pooling are abstract.
+**Starting with connection pooling before diagnosing failures**
+Considered putting connection pooling or indexes before the diagnosing failures scenario since they're more foundational. Rejected — the diagnosing failures scenario earns its place first because it establishes the mindset (production systems break under load) before going deep on any specific concept. Without that hook, indexes and pooling are abstract.
 
 **Strict prerequisite chain**
 Considered requiring learners to complete scenarios in strict order with no jumping allowed. Rejected in favor of standalone with recommended order. Flexibility matters — a working engineer with a specific gap should be able to jump to the relevant scenario without doing all the ones before it.
