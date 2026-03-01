@@ -100,12 +100,14 @@ Answer these before moving on:
 **Q2: For each of the three read endpoints, what column(s) does the query filter or sort by?**
 
 ```
-/orders:          filters by ___
-/products:        filters by ___ and ___
-/orders/summary:  filters by ___
+/orders:          filters by _______________, sorts by _______________
+/products:        filters by _______________ and _______________
+/orders/summary:  filters by _______________
 ```
 
-**Q3: Open `db/schema.sql`. How many distinct values does the `status` column have? How does that compare to the number of distinct values in `user_id`?**
+**Q3: Open `db/seed.js`. How many distinct values does the `status` column have? How does that compare to the number of distinct values in `user_id`?**
+
+The number of distinct values a column has is called its **cardinality**. A column with 5 possible values has low cardinality. A column with 1,000 possible values has high cardinality.
 
 ```
 Your answer:
@@ -131,47 +133,65 @@ You have hypotheses about why these endpoints are slow. Now confirm them. Connec
 psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
-**How to read the output:** `EXPLAIN ANALYZE` prints a tree of operations. Ignore most of it for now. Focus on two things:
+**How to read the output:** `EXPLAIN ANALYZE` prints a tree of operations. The tree can have multiple levels — sorts, joins, scans — nested inside each other. You're looking for two things:
 
-1. The node type at the top — this tells you _how_ PostgreSQL found the rows:
+1. **Scan nodes** — search the output for the scan type on the table you care about. These won't always be at the top — in a query with a JOIN, you'll see multiple scan nodes (one per table). The three scan types you'll see:
    - `Seq Scan` = sequential scan = reading every row = slow on large tables
-   - `Index Scan` = using an index = jumping directly to matching rows = fast
-2. `Execution Time` at the bottom — how long the query actually took in milliseconds
+   - `Index Scan` = using an index to find rows one by one = fast
+   - `Bitmap Index Scan` + `Bitmap Heap Scan` = using an index to find many matching rows at once = also fast. PostgreSQL picks this over Index Scan when it expects multiple results.
+2. **`Execution Time`** at the bottom — how long the query actually took in milliseconds
 
 Run each query and record what you see:
 
-**Query 1 — Filter by `user_id`:**
+**Query 1 — `/orders?user_id=1`:**
 
 ```sql
-EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
+EXPLAIN ANALYZE
+SELECT orders.id, orders.user_id, orders.status, orders.total_cents, orders.created_at, users.email
+FROM orders
+  JOIN users ON orders.user_id = users.id
+WHERE orders.user_id = 1
+ORDER BY orders.created_at DESC;
 ```
 
 ```
-Scan type:      Seq Scan / Index Scan  ← write which one
+Scan on orders: Seq Scan / Index Scan / Bitmap Index Scan  ← circle which one
 Execution time:
 ```
 
-**Query 2 — Filter by `category` and `price`:**
+**Query 2 — `/products?category=electronics&min_price=100&max_price=500`:**
 
 (Note: the API accepts dollar amounts — `min_price=100` means $100. The server converts to cents internally: 100 × 100 = 10000. The SQL queries the raw `price_cents` column directly, so the numbers look different from the URL.)
 
 ```sql
-EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;
+EXPLAIN ANALYZE
+SELECT id, name, category, price_cents, stock
+FROM products
+WHERE category = 'electronics'
+  AND price_cents >= 10000
+  AND price_cents <= 50000
+ORDER BY price_cents ASC
+LIMIT 50;
 ```
 
 ```
-Scan type:      Seq Scan / Index Scan  ← write which one
+Scan on products: Seq Scan / Index Scan / Bitmap Index Scan  ← circle which one
 Execution time:
 ```
 
-**Query 3 — Filter by `status`:**
+**Query 3 — `/orders/summary?status=pending`:**
 
 ```sql
-EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;
+EXPLAIN ANALYZE
+SELECT status, COUNT(*) as count, SUM(total_cents) as total_revenue_cents
+FROM orders
+WHERE status = 'pending'
+GROUP BY status
+ORDER BY count DESC;
 ```
 
 ```
-Scan type:      Seq Scan / Index Scan  ← write which one
+Scan on orders: Seq Scan / Index Scan / Bitmap Index Scan  ← circle which one
 Execution time:
 ```
 
@@ -195,7 +215,7 @@ Three endpoints, three different situations. Before you touch anything, reason t
 
 ### Fix 1: Orders by `user_id`
 
-**The problem:** Every time a user loads their order history, PostgreSQL scans all 100,000 orders to find the ones belonging to that one user. The more orders in the database, the slower this gets.
+**The problem:** Every time a user loads their order history (`/orders?user_id=1`), PostgreSQL scans all 100,000 orders to find the ones belonging to that one user. The more orders in the database, the slower this gets.
 
 **Before you change anything — let's consider some possible solutions:**
 
@@ -225,13 +245,27 @@ psql postgresql://postgres:postgres@postgres:5432/shopdb
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);
 ```
 
+The name `idx_orders_user_id` follows the convention `idx_<table>_<column>`. You can name an index anything, but this convention makes it obvious what table and column it belongs to when you see it in an `EXPLAIN ANALYZE` plan.
+
 Verify PostgreSQL is using it:
 
 ```sql
-EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1 ORDER BY created_at DESC;
+EXPLAIN ANALYZE
+SELECT orders.id, orders.user_id, orders.status, orders.total_cents, orders.created_at, users.email
+FROM orders
+  JOIN users ON orders.user_id = users.id
+WHERE orders.user_id = 1
+ORDER BY orders.created_at DESC;
 ```
 
-You should now see `Index Scan`. Type `\q` to exit, then run the load test and watch Grafana:
+You should now see `Index Scan` or `Bitmap Index Scan` instead of `Seq Scan`. Both mean the index is being used.
+
+```
+Scan on orders: Seq Scan / Index Scan / Bitmap Index Scan  ← write which one
+Execution time:
+```
+
+Type `\q` to exit, then run the load test and watch Grafana:
 
 ```bash
 npm run loadtest
@@ -245,7 +279,7 @@ What happened to `/orders?user_id` latency?
 
 **The problem:** The product search filters by `category` AND `price_cents`. With 100,000 products and no index, PostgreSQL scans every product for every search request.
 
-**Before you change anything — consider your options:**
+**Before you change anything — let's consider some possible solutions:**
 
 > **Option A — Add a single-column index on `category`.** PostgreSQL jumps to all products in a category, then scans those for the price range. Partial improvement.
 >
@@ -278,18 +312,32 @@ CREATE INDEX IF NOT EXISTS idx_products_category_price ON products (category, pr
 Verify it's being used:
 
 ```sql
-EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000;
+EXPLAIN ANALYZE
+SELECT id, name, category, price_cents, stock
+FROM products
+WHERE category = 'electronics'
+  AND price_cents >= 10000
+  AND price_cents <= 50000
+ORDER BY price_cents ASC
+LIMIT 50;
 ```
 
-Look for `Index Scan using idx_products_category_price`. Type `\q` to exit, then run the load test again.
+Look for `Index Scan` or `Bitmap Index Scan` on `idx_products_category_price`. Both mean the index is being used.
+
+```
+Scan on products: Seq Scan / Index Scan / Bitmap Index Scan  ← write which one
+Execution time:
+```
+
+Type `\q` to exit, then run the load test again.
 
 ---
 
-### Fix 3? Orders by status — think before you act
+### Fix 3? Orders by status
 
-**The situation:** The `/orders/summary` endpoint filters by `status`. You've seen two sequential scans get fixed with indexes. Your instinct might be to add one here too.
+**The situation:** The `/orders/summary` endpoint filters by `status`. It's still doing a sequential scan.
 
-**Before you change anything — consider your options:**
+**Before you change anything — let's consider some possible solutions:**
 
 > **Option A — Add an index on `orders.status`.** Might help reads. Will slow down every INSERT and UPDATE to the orders table because the index has to be maintained.
 >
@@ -297,31 +345,59 @@ Look for `Index Scan using idx_products_category_price`. Type `\q` to exit, then
 >
 > **Option C — Rewrite the query.** Instead of filtering by status at query time, maintain a separate summary table that gets updated when orders change status.
 
-**Q8: You've now seen two sequential scans fixed with indexes. Your instinct might be to do the same here. But `status` has only 5 possible values across 100,000 rows — roughly 20,000 rows match any given status. Should you always add an index when you see a sequential scan? What would change your answer?**
+**Q8: What's one argument for and one argument against each option?**
 
 ```
-Your answer:
+Option A — Index on status:
+  For:
+  Against:
 
+Option B — No index:
+  For:
+  Against:
 
+Option C — Summary table:
+  For:
+  Against:
 ```
 
-Before deciding, check what PostgreSQL actually does:
+Before committing to your answer, check what PostgreSQL actually does:
 
 ```bash
 psql postgresql://postgres:postgres@postgres:5432/shopdb
 ```
 
 ```sql
-EXPLAIN ANALYZE SELECT status, COUNT(*) FROM orders WHERE status = 'pending' GROUP BY status;
+EXPLAIN ANALYZE
+SELECT status, COUNT(*) as count, SUM(total_cents) as total_revenue_cents
+FROM orders
+WHERE status = 'pending'
+GROUP BY status
+ORDER BY count DESC;
 ```
 
-Look carefully at what PostgreSQL chose. If it's already doing a `Seq Scan` on a low-cardinality column like this, adding an index won't change that — PostgreSQL will look at the data distribution and decide the full scan is faster than fetching 20,000 scattered rows via an index.
+Look carefully at what PostgreSQL chose. Now try adding the index and running the same query again:
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders (status);
+```
+
+```sql
+EXPLAIN ANALYZE
+SELECT status, COUNT(*) as count, SUM(total_cents) as total_revenue_cents
+FROM orders
+WHERE status = 'pending'
+GROUP BY status
+ORDER BY count DESC;
+```
+
+Did the scan type change? Did the execution time improve? By how much compared to the improvements you saw on the other two endpoints?
 
 ![Cardinality Diagram](assets/diagram-cardinality.svg)
 
 _Fig. 2.4: Cardinality Diagram_
 
-**Q9: What did PostgreSQL decide to do? Given what you know about cardinality, do you think adding an index on `status` would help? Would you add it?**
+**Q9: The index improved the query — but was the improvement worth it? Compare the before/after for this endpoint to the before/after for `/orders` and `/products`. Would you keep this index or drop it?**
 
 ```
 Your answer:
@@ -355,7 +431,7 @@ Fill in your results:
 
 ## Step 6 — Reflect
 
-**Q10: You fixed two out of three slow endpoints. If your tech lead asked you to justify why you didn't add an index on `status`, what would you say?**
+**Q10: You tested an index on `status` and saw a modest improvement. If your tech lead asked whether you'd keep it in production, what would you say?**
 
 ```
 Your answer:
@@ -387,11 +463,11 @@ Your answer:
 
 **Deleted and updated rows leave behind dead tuples.** When PostgreSQL updates or deletes a row, it doesn't immediately remove the old version — the old row stays in the table and its indexes as a "dead tuple." `VACUUM` is the process that cleans these up, and `ANALYZE` refreshes the statistics the query planner uses to decide between a Seq Scan and an Index Scan. PostgreSQL runs `autovacuum` in the background to handle both, but on write-heavy tables with many indexes, dead tuples pile up in more places and take longer to clean. This is one more reason to be selective about which indexes you add.
 
-**Cardinality determines whether an index is worth it.** High cardinality columns (user_id, email, product_id) benefit greatly from indexes. Low cardinality columns (status, boolean flags, country codes) often don't — PostgreSQL may ignore the index entirely.
+**Cardinality affects how much an index helps.** High cardinality columns (user_id, email, product_id) benefit dramatically from indexes — they filter out most of the table. Low cardinality columns (status, boolean flags, country codes) benefit less because the index still has to touch a large fraction of the rows. The index works, but the improvement may not justify the write overhead.
 
 **Composite indexes cover multiple columns.** When you filter by two columns together, a composite index is more efficient than two separate indexes. Column order matters: equality filters before range filters.
 
-**Not adding an index is a valid decision.** You looked at the status column, reasoned through the cardinality, checked what PostgreSQL actually does, and decided an index wasn't worth it. That's exactly what a senior engineer does.
+**Not adding an index is a valid decision.** You tested the status index, saw it helped a little, and weighed that against the write cost on every order. Deciding the tradeoff isn't worth it is just as valid as adding the index. That's engineering judgment — the same process a senior engineer follows.
 
 **EXPLAIN ANALYZE is your best friend.** Never guess whether a query is slow or whether an index is being used. Run EXPLAIN ANALYZE and let PostgreSQL show you exactly what it's doing.
 
@@ -411,7 +487,7 @@ Use this after you've written your own answers. Don't skip to this first — the
 - `/products`: filters by `category` and `price_cents`
 - `/orders/summary`: filters by `status`, groups by `status`
 
-**Q3: Open `db/schema.sql`. How many distinct values does the `status` column have? How does that compare to the number of distinct values in `user_id`?**
+**Q3: Open `db/seed.js`. How many distinct values does the `status` column have? How does that compare to the number of distinct values in `user_id`?**
 
 - `status` has 5 distinct values (pending, processing, shipped, delivered, cancelled). `user_id` has 1,000 distinct values. That's a 200x difference. With 100,000 rows, each status matches ~20,000 rows while each user_id matches ~100 rows. This difference — called cardinality — matters a lot for whether an index helps.
 
@@ -446,25 +522,25 @@ Use this after you've written your own answers. Don't skip to this first — the
   - Pro: still covers both columns.
   - Con: puts the range filter first. PostgreSQL finds all products between $100-$500 across ALL categories, then filters for "electronics" — a much larger initial set. Column order matters: equality before range gives PostgreSQL the tightest initial group to work with.
 
-**Q8: You've now seen two sequential scans fixed with indexes. Your instinct might be to do the same here. But `status` has only 5 possible values across 100,000 rows — roughly 20,000 rows match any given status. Should you always add an index when you see a sequential scan? What would change your answer?**
+**Q8: What's one argument for and one argument against each option?**
 
 - **Option A — Index on `status`:**
-  - Pro: might speed up reads.
-  - Con: with only 5 distinct values across 100,000 rows, ~20,000 rows match any given status (20%). PostgreSQL has to fetch each of those 20,000 rows individually via the index, bouncing between the index and the table data. A straight sequential scan is often faster. Every INSERT and UPDATE also has to maintain this index — cost with little benefit.
-- **Option B — Don't add an index:**
-  - Pro: no write overhead, no maintenance cost.
-  - Con: the sequential scan stays. But when 20% of the table matches, the scan may actually be the fastest option anyway. **Most likely the right choice** — but you'd need to know how often this query runs to be sure.
+  - For: PostgreSQL will use the index — execution time drops.
+  - Against: with only 5 distinct values across 100,000 rows, ~14,000-20,000 rows match any given status. The improvement is modest because the index still has to touch a large fraction of the table. Every INSERT and UPDATE also has to maintain this index — ongoing write cost for a small read gain.
+- **Option B — No index:**
+  - For: no write overhead, no maintenance cost. The admin dashboard probably isn't queried often enough to justify the index maintenance on every order write.
+  - Against: the sequential scan stays. If the table grows significantly or the query runs frequently, the full scan cost adds up.
 - **Option C — Summary table:**
-  - Pro: precomputed counts, instant reads regardless of table size.
-  - Con: adds significant complexity — you need triggers or application logic to keep the summary table in sync with every order status change. Worth it only if the dashboard is refreshed constantly.
+  - For: precomputed counts, instant reads regardless of table size.
+  - Against: adds significant complexity — you need triggers or application logic to keep the summary table in sync with every order status change. Worth it only if the dashboard is refreshed constantly.
 
-**Q9: What did PostgreSQL decide to do? Given what you know about cardinality, do you think adding an index on `status` would help? Would you add it?**
+**Q9: The index improved the query — but was the improvement worth it? Compare the before/after for this endpoint to the before/after for `/orders` and `/products`. Would you keep this index or drop it?**
 
-- PostgreSQL chose a Seq Scan. Adding an index on `status` would likely not change this — PostgreSQL would still choose the sequential scan because too many rows match each status value. The right answer is to not add the index. Recognizing when a tool doesn't fit the problem is as important as knowing when it does.
+- PostgreSQL used the index (Bitmap Index Scan) and execution time dropped — but the improvement is modest compared to the other two endpoints. The `/orders` and `/products` indexes turned full table scans on high-cardinality columns into fast lookups, often 10-50x faster. The `status` index improved a query that was already returning 14% of the table — there's less work to skip. Meanwhile, every INSERT and UPDATE to the orders table now has to maintain this index. For an admin dashboard that's queried occasionally, the write overhead on every order may not be worth a few milliseconds of read improvement. Dropping it is a reasonable decision. Keeping it is defensible too — the point is that you're making the call based on evidence, not reflex.
 
-**Q10: You fixed two out of three slow endpoints. If your tech lead asked you to justify why you didn't add an index on `status`, what would you say?**
+**Q10: You tested an index on `status` and saw a modest improvement. If your tech lead asked whether you'd keep it in production, what would you say?**
 
-- The `status` column has only 5 distinct values across 100,000 rows. Any given status matches ~20,000 rows — 20% of the table. When that many rows match, PostgreSQL decides a sequential scan is faster than bouncing between the index and the table data for 20,000 scattered rows. I confirmed this by running EXPLAIN ANALYZE — PostgreSQL chose a Seq Scan even though there's no index. Adding one would slow down every INSERT and UPDATE to maintain an index that PostgreSQL would ignore anyway.
+- The `status` column has only 5 distinct values across 100,000 rows. I added the index and tested it — PostgreSQL used it, and execution time dropped from ~11ms to ~6ms. But compare that to the `/orders` and `/products` fixes, where execution times dropped from tens of milliseconds to under 1ms. The status index gives a modest improvement because it still has to touch ~14,000 rows — 14% of the table. Meanwhile, every INSERT and UPDATE to the orders table now pays the cost of maintaining that index. For an admin dashboard that runs occasionally, I'd drop the index and save the write overhead. But if the dashboard ran frequently or the table was much larger, I'd keep it. Either answer is defensible — the important thing is that it's based on measurement, not instinct.
 
 **Q11: The orders table gets 10,000 new orders every day. What's the downside of adding too many indexes to a write-heavy table?**
 
@@ -473,6 +549,34 @@ Use this after you've written your own answers. Don't skip to this first — the
 **Q12: If the orders table grew to 10 million rows and the admin dashboard was queried once per second, would your answer on the `status` index change? Why or why not?**
 
 - It might. At 10 million rows, a sequential scan reads 100x more data than at 100,000 rows. If the dashboard queries once per second, that's a full table scan every second — significant I/O pressure. At that point, even a low-cardinality index might be worth the write overhead because the read cost has become so high. Alternatively, Option C (a summary table) starts looking more attractive — precomputed counts avoid the scan entirely. The right answer changed because the constraints changed. That's the point: engineering decisions depend on context, and context changes.
+
+---
+
+## Common Questions
+
+**The status index made the query faster. Why wouldn't I keep it?**
+
+- You can keep it — it's not wrong. The question is whether the improvement justifies the cost. The `/orders` and `/products` indexes turned full table scans into sub-millisecond lookups because they filter out 99%+ of the table. The `status` index still has to touch ~14% of the table, so the improvement is modest. Meanwhile, every INSERT and UPDATE to the orders table pays the cost of maintaining that index. For a high-write table serving an admin dashboard that runs occasionally, the tradeoff may not be worth it. For a dashboard that runs every second, it might be. The point isn't that the answer is always "don't index low cardinality columns" — it's that you measure the improvement and weigh it against the cost instead of adding indexes reflexively.
+
+**Why did PostgreSQL use Bitmap Index Scan instead of Index Scan for the orders query?**
+
+- Both use the index. The difference is strategy. An Index Scan looks up rows one at a time — find a match in the index, go fetch that row from the table, repeat. A Bitmap Index Scan collects all matching entries from the index first, sorts them by their physical location on disk, then fetches them in order. This avoids jumping back and forth across the disk when there are many matches. PostgreSQL picks Bitmap when it expects enough matching rows that the sorted batch fetch is faster than one-by-one lookups.
+
+**Can I test an index without actually adding it to the table?**
+
+- Not with vanilla PostgreSQL. There's no built-in "what if" mode for indexes. The practical approach is what you did in Fix 3: create the index, run EXPLAIN ANALYZE to measure the improvement, and drop it if you decide it's not worth keeping (`DROP INDEX idx_orders_status;`). This is what engineers do in practice — create, measure, decide.
+
+**Does low cardinality always mean "don't add an index"?**
+
+- No. Cardinality alone doesn't tell you enough — the data distribution matters too. Imagine a column with only two values: `approved` and `denied`. If 95% of rows are `approved` and you're querying `WHERE status = 'denied'`, the index only has to touch 5% of the table — that's a big win. But `WHERE status = 'approved'` hits 95% of the table, so a sequential scan would be faster for that query. Same column, same two values, different answers depending on which value you're filtering for and how the data is distributed. The number of distinct values is a starting point, not the whole picture.
+
+**Is less than 1ms always the goal for EXPLAIN ANALYZE?**
+
+- No. There's no universal target — it depends on what the query does and where it runs. A simple lookup by indexed column in sub-millisecond is normal. A complex aggregation across millions of rows in 50ms might be excellent. A nightly report in 5 seconds might be fine. What matters is whether the query is fast enough for its use case. An endpoint users hit on every page load needs to be fast. An admin dashboard queried a few times a day can be slower. The load test makes this real — the problem isn't that a single query takes 11ms, it's that 50 concurrent users each triggering an 11ms full table scan stack up and p99 latency spikes.
+
+**Does adding an index slow down writes?**
+
+- Yes. Every INSERT, UPDATE, or DELETE on an indexed column has to update the index too. For a single index on a table with moderate write traffic, the cost is small — you won't notice it. But indexes add up. If you add indexes to every column "just in case," every write operation pays the cost of maintaining all of them. That's why you only add indexes where they actually help reads enough to justify the write overhead.
 
 ---
 

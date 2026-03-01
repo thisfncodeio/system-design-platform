@@ -79,12 +79,7 @@ app.get('/health', async (req, res) => {
  * GET /orders?user_id=123
  *
  * Fetch all orders for a specific user.
- * This is called every time a user opens their order history.
- * The most frequently called endpoint in the app.
- *
- * PROBLEM: There is no index on orders.user_id.
- * With 100,000 orders in the table, finding one user's orders
- * means scanning every single row.
+ * Called every time a user opens their order history.
  */
 app.get('/orders', async (req, res) => {
   const { user_id } = req.query;
@@ -120,11 +115,7 @@ app.get('/orders', async (req, res) => {
  * GET /products?category=electronics&min_price=100&max_price=500
  *
  * Search products by category and price range.
- * Used by the product browsing page — called constantly.
- *
- * PROBLEM: Filtering on both category AND price_cents with no
- * composite index. Each filter narrows the results but the
- * database still has to scan a huge portion of the table.
+ * Used by the product browsing page.
  */
 app.get('/products', async (req, res) => {
   const { category, min_price, max_price } = req.query;
@@ -166,11 +157,6 @@ app.get('/products', async (req, res) => {
  * GET /orders/summary?status=pending
  *
  * Count orders grouped by status for an admin dashboard.
- * Status can only be: pending, processing, shipped, delivered, cancelled
- *
- * PROBLEM (or is it?): status has very low cardinality —
- * only 5 possible values. An index here might not help as
- * much as you'd expect. This is the one to think carefully about.
  */
 app.get('/orders/summary', async (req, res) => {
   const { status } = req.query;

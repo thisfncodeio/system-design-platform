@@ -14,33 +14,95 @@
  * Run: node db/seed.js
  */
 
-const { Pool } = require('pg');
+const { Pool } = require("pg");
 
 const db = new Pool({
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || "localhost",
   port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'shopdb',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  database: process.env.DB_NAME || "shopdb",
+  user: process.env.DB_USER || "postgres",
+  password: process.env.DB_PASSWORD || "postgres",
 });
 
 const USERS = 1000;
 const PRODUCTS = 100000;
 const ORDERS = 100000;
 
-const categories = ['electronics', 'clothing', 'books', 'home', 'sports', 'toys'];
-const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+const categories = ["electronics", "clothing", "books", "home", "sports", "toys"];
 
 // Weight statuses so most orders are delivered (realistic)
-const statusWeights = ['pending', 'processing', 'shipped', 'delivered', 'delivered', 'delivered', 'cancelled'];
+const statusWeights = [
+  "pending",
+  "processing",
+  "shipped",
+  "delivered",
+  "delivered",
+  "delivered",
+  "cancelled",
+];
 
 const productNames = {
-  electronics: ['Laptop', 'Phone', 'Tablet', 'Headphones', 'Monitor', 'Keyboard', 'Mouse', 'Charger', 'Speaker', 'Camera'],
-  clothing: ['T-Shirt', 'Jeans', 'Jacket', 'Shoes', 'Hat', 'Socks', 'Dress', 'Shorts', 'Sweater', 'Coat'],
-  books: ['Novel', 'Textbook', 'Cookbook', 'Biography', 'Self-Help', 'History', 'Science', 'Art Book', 'Travel Guide', 'Poetry'],
-  home: ['Lamp', 'Rug', 'Pillow', 'Blanket', 'Vase', 'Frame', 'Clock', 'Candle', 'Shelf', 'Mirror'],
-  sports: ['Yoga Mat', 'Weights', 'Resistance Band', 'Water Bottle', 'Running Shoes', 'Gloves', 'Jump Rope', 'Foam Roller', 'Bag', 'Towel'],
-  toys: ['Puzzle', 'Board Game', 'Action Figure', 'Doll', 'Lego Set', 'Remote Car', 'Stuffed Animal', 'Card Game', 'Art Kit', 'Building Blocks'],
+  electronics: [
+    "Laptop",
+    "Phone",
+    "Tablet",
+    "Headphones",
+    "Monitor",
+    "Keyboard",
+    "Mouse",
+    "Charger",
+    "Speaker",
+    "Camera",
+  ],
+  clothing: [
+    "T-Shirt",
+    "Jeans",
+    "Jacket",
+    "Shoes",
+    "Hat",
+    "Socks",
+    "Dress",
+    "Shorts",
+    "Sweater",
+    "Coat",
+  ],
+  books: [
+    "Novel",
+    "Textbook",
+    "Cookbook",
+    "Biography",
+    "Self-Help",
+    "History",
+    "Science",
+    "Art Book",
+    "Travel Guide",
+    "Poetry",
+  ],
+  home: ["Lamp", "Rug", "Pillow", "Blanket", "Vase", "Frame", "Clock", "Candle", "Shelf", "Mirror"],
+  sports: [
+    "Yoga Mat",
+    "Weights",
+    "Resistance Band",
+    "Water Bottle",
+    "Running Shoes",
+    "Gloves",
+    "Jump Rope",
+    "Foam Roller",
+    "Bag",
+    "Towel",
+  ],
+  toys: [
+    "Puzzle",
+    "Board Game",
+    "Action Figure",
+    "Doll",
+    "Lego Set",
+    "Remote Car",
+    "Stuffed Animal",
+    "Card Game",
+    "Art Kit",
+    "Building Blocks",
+  ],
 };
 
 function randomBetween(min, max) {
@@ -48,11 +110,11 @@ function randomBetween(min, max) {
 }
 
 async function seed() {
-  console.log('Seeding database...\n');
+  console.log("Seeding database...\n");
 
-  const existing = await db.query('SELECT COUNT(*) FROM orders');
+  const existing = await db.query("SELECT COUNT(*) FROM orders");
   if (parseInt(existing.rows[0].count) > 0) {
-    console.log('✅ Database already seeded. Skipping.');
+    console.log("✅ Database already seeded. Skipping.");
     await db.end();
     return;
   }
@@ -62,14 +124,14 @@ async function seed() {
   const userIds = [];
   for (let i = 1; i <= USERS; i++) {
     const result = await db.query(
-      'INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING RETURNING id',
-      [`user${i}@example.com`]
+      "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING RETURNING id",
+      [`user${i}@example.com`],
     );
     if (result.rows[0]) userIds.push(result.rows[0].id);
   }
   if (userIds.length === 0) {
-    const r = await db.query('SELECT id FROM users LIMIT $1', [USERS]);
-    userIds.push(...r.rows.map(r => r.id));
+    const r = await db.query("SELECT id FROM users LIMIT $1", [USERS]);
+    userIds.push(...r.rows.map((r) => r.id));
   }
   console.log(`✓ ${userIds.length} users ready\n`);
 
@@ -97,12 +159,14 @@ async function seed() {
     }
 
     await db.query(
-      `INSERT INTO products (name, category, price_cents, stock) VALUES ${batch.join(', ')}`,
-      values
+      `INSERT INTO products (name, category, price_cents, stock) VALUES ${batch.join(", ")}`,
+      values,
     );
 
     productsCreated += PRODUCT_BATCH;
-    process.stdout.write(`\r${Math.min(productsCreated, PRODUCTS).toLocaleString()} / ${PRODUCTS.toLocaleString()} products`);
+    process.stdout.write(
+      `\r${Math.min(productsCreated, PRODUCTS).toLocaleString()} / ${PRODUCTS.toLocaleString()} products`,
+    );
   }
 
   console.log(`\n✓ ${PRODUCTS.toLocaleString()} products ready\n`);
@@ -130,21 +194,23 @@ async function seed() {
     }
 
     await db.query(
-      `INSERT INTO orders (user_id, status, total_cents, created_at) VALUES ${batch.join(', ')}`,
-      values
+      `INSERT INTO orders (user_id, status, total_cents, created_at) VALUES ${batch.join(", ")}`,
+      values,
     );
 
     created += BATCH;
-    process.stdout.write(`\r${Math.min(created, ORDERS).toLocaleString()} / ${ORDERS.toLocaleString()} orders`);
+    process.stdout.write(
+      `\r${Math.min(created, ORDERS).toLocaleString()} / ${ORDERS.toLocaleString()} orders`,
+    );
   }
 
   console.log(`\n✓ ${ORDERS.toLocaleString()} orders ready\n`);
-  console.log('✅ Database seeded and ready for the scenario.');
+  console.log("✅ Database seeded and ready for the scenario.");
 
   await db.end();
 }
 
-seed().catch(err => {
-  console.error('Seed failed:', err.message);
+seed().catch((err) => {
+  console.error("Seed failed:", err.message);
   process.exit(1);
 });

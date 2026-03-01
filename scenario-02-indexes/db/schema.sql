@@ -2,14 +2,6 @@
 -- SCHEMA: E-Commerce Order System
 --
 -- Three tables: users, products, orders
---
--- Notice what's missing:
---   - No index on orders.user_id
---   - No index on products.category or products.price_cents
---   - No index on orders.status
---
--- These are intentional. You'll decide which ones to add
--- and which ones aren't worth adding.
 -- ======================================================
 
 CREATE TABLE IF NOT EXISTS users (

@@ -1,10 +1,7 @@
 /**
  * LOAD TEST — Scenario 2: Indexes and Slow Queries
  *
- * Tests three endpoints:
- *   1. GET /orders?user_id=X    — filter by user_id (no index)
- *   2. GET /products?category=X&min_price=X&max_price=X  — composite filter (no index)
- *   3. GET /orders/summary?status=pending  — low cardinality filter
+ * Tests three read endpoints under concurrent load.
  *
  * Run: npm run loadtest
  */
@@ -63,17 +60,17 @@ async function main() {
   const results = [];
 
   results.push(await runTest(
-    'GET /orders?user_id (filter by user)',
+    'GET /orders?user_id',
     `${BASE_URL}/orders?user_id=${userId}`
   ));
 
   results.push(await runTest(
-    'GET /products?category&price range (composite filter)',
+    'GET /products?category&price',
     `${BASE_URL}/products?category=electronics&min_price=100&max_price=500`
   ));
 
   results.push(await runTest(
-    'GET /orders/summary?status (low cardinality filter)',
+    'GET /orders/summary?status',
     `${BASE_URL}/orders/summary?status=pending`
   ));
 

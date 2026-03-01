@@ -30,17 +30,20 @@ CREATE INDEX IF NOT EXISTS idx_products_category_price ON products (category, pr
 -- Status only has 5 possible values: pending, processing,
 -- shipped, delivered, cancelled.
 --
--- When a column has very few distinct values (low cardinality),
--- an index often doesn't help. PostgreSQL calculates that
--- scanning the whole table is faster than using the index
--- because so many rows match each status value.
+-- Adding an index here does speed up the query — PostgreSQL
+-- uses it (Bitmap Index Scan) and execution time drops.
+-- But the improvement is modest compared to the other two
+-- indexes because status has low cardinality: ~14,000 rows
+-- match any given status, so the index still touches a large
+-- fraction of the table.
 --
--- Rule of thumb: indexes work best on high-cardinality columns
--- (many distinct values, like user_id or email).
--- They're much less useful on low-cardinality columns
--- (few distinct values, like status or boolean flags).
+-- Meanwhile, every INSERT and UPDATE to the orders table
+-- pays the cost of maintaining this index. For an admin
+-- dashboard that runs occasionally, the write overhead
+-- may not justify the small read improvement.
 --
--- Run EXPLAIN ANALYZE on the status query before and after
--- adding an index to see PostgreSQL's reasoning for yourself.
+-- This is a judgment call, not a rule. If the dashboard
+-- ran every second, or the table had millions of rows,
+-- the answer might change.
 -- ======================================================
--- CREATE INDEX idx_orders_status ON orders (status);  ← intentionally left out
+-- CREATE INDEX idx_orders_status ON orders (status);  ← left out by choice
