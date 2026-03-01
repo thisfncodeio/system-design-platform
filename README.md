@@ -19,7 +19,7 @@ Each scenario runs in your browser using GitHub Codespaces — no installs requi
 1. Select the **Codespaces** tab
 1. Click the 3 dots and select **Codespace repository configuration**
 1. Click **New with options...**
-1. On the next page, a dropdown will appear asking **Dev container configuration** — pick the scenario you want to start (e.g. "Scenario 1 — Connection Pools and Database Indexes")
+1. On the next page, a dropdown will appear asking **Dev container configuration** — pick the scenario you want to start (e.g. "Scenario 1 — Diagnosing Failures")
 1. Click **Create codespace**
 1. Wait ~2 minutes for the environment to build — the database seeds itself automatically
 1. When VS Code opens, **SCENARIO.md** will be open and ready to read
@@ -36,35 +36,44 @@ Work through these in order, or jump to the concept you need. Scenarios 1–4 bu
 
 | #   | Scenario                                                             | Concepts                                                           | Status   |
 | --- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | -------- |
-| 1   | [Connection Pools and Database Indexes](./scenario-01-diagnosing-failures) | Connection Pooling · Database Indexes                              | ✅ Ready |
+| 1   | [Diagnosing Failures](./scenario-01-diagnosing-failures)             | Connection Pooling · Database Indexes                              | ✅ Ready |
 | 2   | [Indexes and Slow Queries](./scenario-02-indexes)                    | Query Planning · Cardinality · EXPLAIN ANALYZE · Composite Indexes | ✅ Ready |
 | 3   | [Connection Pooling](./scenario-03-connection-pooling)               | Pool sizing · Timeouts · PostgreSQL connection ceiling             | ✅ Ready |
 | 4   | [Horizontal Scaling](./scenario-04-horizontal-scaling)               | CPU ceiling · Load balancing · nginx · Connection budget split     | ✅ Ready |
 
 ### 🚶 Walking — Learn to scale a single system
 
-| #   | Scenario             | Concepts                                          | Status         |
-| --- | -------------------- | ------------------------------------------------- | -------------- |
-| 5   | Caching with Redis   | Cache-aside · TTL · Eviction · Cache invalidation | 🔜 Coming soon |
-| 6   | Load Balancing       | Algorithms · Health checks · Sticky sessions      | 🔜 Coming soon |
-| 7   | Database Replication | Primary/replica · Read replicas · Replication lag | 🔜 Coming soon |
+| #   | Scenario                            | Concepts                                                         | Status         |
+| --- | ----------------------------------- | ---------------------------------------------------------------- | -------------- |
+| 5   | Caching with Redis                  | Cache-aside · TTL · Eviction · Cache invalidation                | 🔜 Coming soon |
+| 6   | Stateless Servers and Load Balancing | Stateless design · Load balancing algorithms · DNS · CDN         | 🔜 Coming soon |
+| 7   | Observability and Diagnostic Thinking | Structured logging · Request IDs · Building your own diagnosis  | 🔜 Coming soon |
+| 8   | Database Replication and Read Replicas | Primary/replica · Read replicas · Replication lag             | 🔜 Coming soon |
 
 ### 🏃 Running — Learn to split and decouple
 
-| #   | Scenario                     | Concepts                                            | Status         |
-| --- | ---------------------------- | --------------------------------------------------- | -------------- |
-| 8   | Message Queues               | Async communication · Producers/consumers · Retries | 🔜 Coming soon |
-| 9   | Pub/Sub and Fan-out          | Topics · Subscribers · Fan-out patterns             | 🔜 Coming soon |
-| 10  | API Design and Rate Limiting | REST · Idempotency · Token bucket · Sliding window  | 🔜 Coming soon |
+| #   | Scenario                                          | Concepts                                                     | Status         |
+| --- | ------------------------------------------------- | ------------------------------------------------------------ | -------------- |
+| 9   | Message Queues and Async Processing               | Async communication · Producers/consumers · Backpressure     | 🔜 Coming soon |
+| 10  | Pub/Sub and Fan-out                                | Topics · Subscribers · Fan-out patterns                      | 🔜 Coming soon |
+| 11  | API Design, Rate Limiting, and Graceful Degradation | REST · Idempotency · Token bucket · Graceful degradation    | 🔜 Coming soon |
 
 ### 🏎️ Sprinting — Apply everything to real systems
 
-| #   | Scenario             | Concepts                                       | Status         |
-| --- | -------------------- | ---------------------------------------------- | -------------- |
-| 11  | URL Shortener        | Hashing · Redirects · Caching · Scale          | 🔜 Coming soon |
-| 12  | Notification System  | Queues · Retries · Fan-out · Multiple channels | 🔜 Coming soon |
-| 13  | News Feed / Timeline | Fan-out on write vs read · The core tradeoff   | 🔜 Coming soon |
-| 14  | Chat System          | WebSockets · Message ordering · Presence       | 🔜 Coming soon |
+#### Core Path
+
+| #   | Scenario                    | Concepts                                                    | Status         |
+| --- | --------------------------- | ----------------------------------------------------------- | -------------- |
+| 12  | URL Shortener               | Hashing · Redirects · Caching · Scale                       | 🔜 Coming soon |
+| 13  | Booking / Reservation System | Concurrency · Correctness · Transactions · SELECT FOR UPDATE | 🔜 Coming soon |
+| 14  | Chat System                 | WebSockets · Message ordering · Presence · Full integration | 🔜 Coming soon |
+
+#### Bonus Challenges
+
+| Scenario             | Concepts                                       | Status         |
+| -------------------- | ---------------------------------------------- | -------------- |
+| Notification System  | Queues · Retries · Fan-out · Multiple channels | 🔜 Coming soon |
+| News Feed / Timeline | Fan-out on write vs read · The core tradeoff   | 🔜 Coming soon |
 
 ---
 
@@ -80,32 +89,33 @@ Track 2 begins where Track 1 ends. The Crawling and Walking scenarios follow the
 | 2   | CAP Theorem in Practice          | Consistency vs availability · Feeling the tradeoff through real code | 🔜 Coming soon |
 | 3   | Eventual Consistency             | Node disagreement · Reconciliation · Conflict resolution             | 🔜 Coming soon |
 
-### 🚶 Walking — Scaling patterns
+### 🚶 Walking — Scaling patterns that hurt
 
-| #   | Scenario                      | Concepts                                                           | Status         |
-| --- | ----------------------------- | ------------------------------------------------------------------ | -------------- |
-| 4   | Horizontal Scaling Done Right | Stateless services · Shared session state · Sticky session traps   | 🔜 Coming soon |
-| 5   | Database Sharding             | What it solves · What it breaks · Picking a shard key              | 🔜 Coming soon |
-| 6   | Replication Lag               | When lag causes real bugs · How to design around it                | 🔜 Coming soon |
-| 7   | Consistent Hashing            | Why naive sharding breaks · Virtual nodes · Minimal redistribution | 🔜 Coming soon |
+| #   | Scenario             | Concepts                                                                | Status         |
+| --- | -------------------- | ----------------------------------------------------------------------- | -------------- |
+| 4   | Database Sharding    | What it solves · What it breaks · Picking a shard key                   | 🔜 Coming soon |
+| 5   | Consistent Hashing   | Why naive sharding breaks · Virtual nodes · Minimal redistribution      | 🔜 Coming soon |
+| 6   | Replication Lag and Its Consequences | When lag causes real bugs · How to design around it           | 🔜 Coming soon |
+| 7   | Distributed Tracing  | Cross-service tracing · Correlation IDs · Span trees · Causality       | 🔜 Coming soon |
+| 8   | Distributed Caching  | Cache coherence · Stampede · Thundering herd · Invalidation at scale   | 🔜 Coming soon |
 
 ### 🏃 Running — Resilience and failure design
 
 | #   | Scenario                     | Concepts                                                               | Status         |
 | --- | ---------------------------- | ---------------------------------------------------------------------- | -------------- |
-| 8   | Circuit Breakers and Retries | Designing for failure · Exponential backoff · Bulkheads                | 🔜 Coming soon |
-| 9   | Idempotency                  | Why it matters · What breaks without it · Implementation patterns      | 🔜 Coming soon |
-| 10  | Distributed Transactions     | Two-phase commit · Saga pattern · Why this is hard                     | 🔜 Coming soon |
-| 11  | Rate Limiting at Scale       | Distributed rate limiting · Token bucket · Sliding window across nodes | 🔜 Coming soon |
+| 9   | Circuit Breakers and Retries | Designing for failure · Exponential backoff · Bulkheads                | 🔜 Coming soon |
+| 10  | Idempotency                  | Why it matters · What breaks without it · Implementation patterns      | 🔜 Coming soon |
+| 11  | Distributed Transactions     | Two-phase commit · Saga pattern · Why this is hard                     | 🔜 Coming soon |
+| 12  | Rate Limiting at Scale       | Distributed rate limiting · Token bucket · Sliding window across nodes | 🔜 Coming soon |
 
 ### 🏎️ Sprinting — Architecture design problems
 
 | #   | Scenario                 | Concepts                                                            | Status         |
 | --- | ------------------------ | ------------------------------------------------------------------- | -------------- |
-| 12  | Design Under Ambiguity   | Vague requirements · Defensible decisions · Communicating tradeoffs | 🔜 Coming soon |
-| 13  | Spot What's Wrong        | Reading someone else's architecture · Identifying failure modes     | 🔜 Coming soon |
-| 14  | Scale an Existing System | 10x load · What changes first · Order of operations                 | 🔜 Coming soon |
-| 15  | Cost vs Performance      | Budget constraints · Where to cut · What you sacrifice              | 🔜 Coming soon |
+| 13  | Design Under Ambiguous Requirements | Vague requirements · Defensible decisions · Communicating tradeoffs | 🔜 Coming soon |
+| 14  | Spot What's Wrong        | Reading someone else's architecture · Identifying failure modes     | 🔜 Coming soon |
+| 15  | Scale an Existing System | 10x load · What changes first · Order of operations                 | 🔜 Coming soon |
+| 16  | Cost vs Performance Tradeoffs | Budget constraints · Where to cut · What you sacrifice         | 🔜 Coming soon |
 
 ---
 
