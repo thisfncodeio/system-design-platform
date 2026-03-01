@@ -76,7 +76,7 @@ You don't need to be an expert on these yet. Read them once so the exercise make
 
 Imagine a textbook with no table of contents. To find a topic you we searching for, you'd have to read every page. A database index is like a table of contents — it lets the database jump straight to the data it needs instead of scanning every row. Without one, queries get slower as the table grows.
 
-While technically you can put an index on any column. A good room of thumb: if you're frequently **sorting** or **filtering** by a column and the query is **slow**, check if there's an index on that column. If there isn't, add one and measure the difference.
+While technically you can put an index on any column. A good rule of thumb: if you're frequently **sorting** or **filtering** by a column and the query is **slow**, check if there's an index on that column. If there isn't, add one and measure the difference.
 
 Primary keys (`id`) are indexed automatically.
 
@@ -194,7 +194,9 @@ You now have evidence. You know which endpoint is failing, how bad the error rat
 
 You've seen the failure. Now go figure out why.
 
-Open `src/server.js` and read the whole thing. You're not reading to understand the whole codebase — you're reading to answer one specific question: **what in this code could cause mass failures under load and slow queries?**
+Open `src/server.js` and read the whole thing. If you're coming from Python, Go, or another language, open `src/server.comments.js` instead — it's the same code with JavaScript-specific syntax explained inline.
+
+You're not reading to understand the whole codebase — you're reading to answer one specific question: **what in this code could cause mass failures under load and slow queries?**
 
 **Q2: What does `getDbConnection()` do? When does it get called?**
 
@@ -455,7 +457,7 @@ Type `\q` to exit, then run the load test one final time:
 npm run loadtest
 ```
 
-**What to expect:** Latency should drop significantly — without any code change. You didn't have to touch `server.js`. The index now exists in the database, the slowness was never in the code. It was in the database. Adding an index what all you needed to fix it.
+**What to expect:** Latency should drop significantly — without any code change. You didn't have to touch `server.js`. The index now exists in the database, the slowness was never in the code. It was in the database. Adding an index was all you needed to fix it.
 
 ---
 
@@ -463,7 +465,7 @@ npm run loadtest
 
 | Run                   | Success Rate | p99 Latency | Req/sec |
 | --------------------- | ------------ | ----------- | ------- |
-| Broken (Step 2)       |              |             |         |
+| Broken (Step 1)       |              |             |         |
 | After Fix 1 (pooling) |              |             |         |
 | After Fix 2 (index)   |              |             |         |
 

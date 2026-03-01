@@ -3,13 +3,13 @@
  *
  * Creates enough data to make the slow queries actually slow:
  *   - 1,000 users
- *   - 500 products across 6 categories
+ *   - 100,000 products across 6 categories
  *   - 100,000 orders spread across users
  *
- * Why 100,000 orders?
+ * Why these numbers?
  * With only 100 rows, every query is fast regardless of indexes.
  * 100,000 rows is enough to feel the difference between
- * a sequential scan and an index scan.
+ * a sequential scan and an index scan — for both orders AND products.
  *
  * Run: node db/seed.js
  */
@@ -25,7 +25,7 @@ const db = new Pool({
 });
 
 const USERS = 1000;
-const PRODUCTS = 500;
+const PRODUCTS = 100000;
 const ORDERS = 100000;
 
 const categories = ['electronics', 'clothing', 'books', 'home', 'sports', 'toys'];
@@ -73,23 +73,39 @@ async function seed() {
   }
   console.log(`✓ ${userIds.length} users ready\n`);
 
-  // Products
-  console.log(`Creating ${PRODUCTS} products...`);
-  const productIds = [];
-  for (let i = 0; i < PRODUCTS; i++) {
-    const category = categories[i % categories.length];
-    const names = productNames[category];
-    const name = `${names[i % names.length]} ${Math.floor(i / names.length) + 1}`;
-    const priceCents = randomBetween(499, 99999);
-    const stock = randomBetween(0, 500);
+  // Products in batches
+  console.log(`Creating ${PRODUCTS.toLocaleString()} products...`);
+  const PRODUCT_BATCH = 1000;
+  let productsCreated = 0;
 
-    const result = await db.query(
-      'INSERT INTO products (name, category, price_cents, stock) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, category, priceCents, stock]
+  while (productsCreated < PRODUCTS) {
+    const batch = [];
+    const values = [];
+    let idx = 1;
+
+    for (let i = 0; i < PRODUCT_BATCH && productsCreated + i < PRODUCTS; i++) {
+      const globalIdx = productsCreated + i;
+      const category = categories[globalIdx % categories.length];
+      const names = productNames[category];
+      const name = `${names[globalIdx % names.length]} ${Math.floor(globalIdx / names.length) + 1}`;
+      const priceCents = randomBetween(499, 99999);
+      const stock = randomBetween(0, 500);
+
+      batch.push(`($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3})`);
+      values.push(name, category, priceCents, stock);
+      idx += 4;
+    }
+
+    await db.query(
+      `INSERT INTO products (name, category, price_cents, stock) VALUES ${batch.join(', ')}`,
+      values
     );
-    productIds.push(result.rows[0].id);
+
+    productsCreated += PRODUCT_BATCH;
+    process.stdout.write(`\r${Math.min(productsCreated, PRODUCTS).toLocaleString()} / ${PRODUCTS.toLocaleString()} products`);
   }
-  console.log(`✓ ${productIds.length} products ready\n`);
+
+  console.log(`\n✓ ${PRODUCTS.toLocaleString()} products ready\n`);
 
   // Orders in batches
   console.log(`Creating ${ORDERS} orders...`);

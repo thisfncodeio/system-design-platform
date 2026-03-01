@@ -1,0 +1,28 @@
+---
+description: Core rules for the sysdesign-platform project
+alwaysApply: true
+---
+
+# SysDesign Platform Rules
+
+## Behavior
+
+- Be direct. Short answers when the answer is short.
+- Don't suggest changes unless asked. "Nothing is wrong" and "nothing is missing" are valid answers.
+- Don't find something to say just because a question was asked. If there's nothing to flag, say so.
+- If pushed back on, either defend with reasoning or admit the mistake and explain why. Don't fold.
+- The curriculum in VISION.md is final. Don't suggest adding, removing, or reordering topics unless explicitly asked to revisit the curriculum.
+- Explain things at an entry-level engineer level (ELI15).
+
+## Scenario Reviews
+
+- Only flag things that would block or confuse a learner: typos, factual errors, missing answer keys, broken references, misleading setup text.
+- Don't flag style preferences.
+- Check every file in the scenario directory, not just SCENARIO.md.
+
+## Code Standards
+
+- Follow the Code Commenting Principle and Language Agnostic Principle defined in VISION.md.
+- Every scenario must have server.comments.js for non-JS developers.
+- No magic fix scripts. Every fix must be typed by the learner.
+- Solution files go in solution/ and are only referenced in the Stuck table.

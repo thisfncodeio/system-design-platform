@@ -1,4 +1,4 @@
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 378" font-family="'Segoe UI', Arial, sans-serif">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 285" font-family="'Segoe UI', Arial, sans-serif">
 
   <defs>
     <marker id="blue-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -10,7 +10,7 @@
   </defs>
 
   <!-- Background -->
-  <rect width="800" height="378" fill="#f8f9ff" rx="16"/>
+  <rect width="800" height="285" fill="#f8f9ff" rx="16"/>
 
   <!-- Title -->
   <text x="400" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">The System You're Working With</text>
@@ -30,14 +30,12 @@
   <text x="80" y="158" text-anchor="middle" font-size="11" fill="#888">200 concurrent users</text>
 
   <!-- Arrows: Users to Server -->
-  <line x1="145" y1="118" x2="245" y2="155" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <line x1="145" y1="125" x2="245" y2="170" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <line x1="145" y1="132" x2="245" y2="185" stroke="#90b4f5" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#blue-arrow)"/>
-  <text x="185" y="133" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">each sends</text>
-  <text x="185" y="145" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a1a2e">GET /feed</text>
+  <line x1="145" y1="118" x2="245" y2="163" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#blue-arrow)"/>
+  <line x1="145" y1="125" x2="245" y2="198" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#blue-arrow)"/>
+  <line x1="145" y1="132" x2="245" y2="230" stroke="#90b4f5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#blue-arrow)"/>
 
   <!-- ====== SERVER ====== -->
-  <rect x="248" y="100" width="190" height="185" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2.5"/>
+  <rect x="248" y="100" width="190" height="165" fill="#fff9e6" rx="12" stroke="#ffd700" stroke-width="2.5"/>
   <text x="343" y="128" text-anchor="middle" font-size="13" font-weight="bold" fill="#b8860b">🖥️ Server</text>
   <text x="343" y="145" text-anchor="middle" font-size="11" fill="#888">Node.js + Express</text>
 
@@ -50,16 +48,13 @@
   <rect x="264" y="217" width="158" height="26" fill="#fff3cd" rx="5" stroke="#ffc107" stroke-width="1"/>
   <text x="343" y="234" text-anchor="middle" font-size="10" fill="#555">GET /users/:id/posts</text>
 
-  <rect x="264" y="250" width="158" height="28" fill="#ffdddd" rx="5"/>
-  <text x="343" y="263" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ every single request from</text>
-  <text x="343" y="275" text-anchor="middle" font-size="9" fill="#cc3333">every user opens a NEW connection</text>
 
   <!-- Arrow: Server to DB -->
   <line x1="440" y1="192" x2="512" y2="192" stroke="#4caf50" stroke-width="2.5" marker-end="url(#green-arrow)"/>
   <text x="476" y="183" text-anchor="middle" font-size="10" fill="#4caf50">query</text>
 
   <!-- ====== DATABASE ====== -->
-  <rect x="514" y="100" width="190" height="185" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2.5"/>
+  <rect x="514" y="100" width="190" height="165" fill="#f0fff4" rx="12" stroke="#4caf50" stroke-width="2.5"/>
   <text x="609" y="128" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7a3c">🗄️ Database</text>
   <text x="609" y="145" text-anchor="middle" font-size="11" fill="#888">PostgreSQL</text>
 
@@ -72,15 +67,6 @@
   <text x="609" y="234" text-anchor="middle" font-size="10" fill="#555">id, user_id, content,</text>
   <text x="609" y="248" text-anchor="middle" font-size="10" fill="#555">created_at</text>
 
-  <rect x="530" y="259" width="158" height="20" fill="#ffdddd" rx="5"/>
-  <text x="609" y="273" text-anchor="middle" font-size="9" fill="#cc3333">⚠️ /feed query ORDER BY created_at</text>
 
-  <!-- ====== SINGLE POINT OF FAILURE ====== -->
-  <rect x="240" y="298" width="472" height="28" fill="none" rx="8" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="5,3"/>
-  <text x="476" y="317" text-anchor="middle" font-size="11" fill="#cc3333">⚠️  The entire app runs on ONE machine</text>
-
-  <!-- Bottom bar -->
-  <rect x="30" y="340" width="740" height="26" fill="#e8f4fd" rx="6"/>
-  <text x="400" y="357" text-anchor="middle" font-size="11" fill="#1a5276">You will fix both ⚠️ warnings above — and by the end of Scenario 4, understand why the dashed border matters too.</text>
 
 </svg>

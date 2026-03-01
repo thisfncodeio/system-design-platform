@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 508" font-family="'Segoe UI', Arial, sans-serif">
 
   <!-- Background -->
-  <rect width="800" height="480" fill="#f8f9ff" rx="16"/>
+  <rect width="800" height="508" fill="#f8f9ff" rx="16"/>
 
   <!-- Title -->
   <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">Composite Indexes — Covering Two Columns at Once</text>
   <text x="400" y="56" text-anchor="middle" font-size="12" fill="#888">When you filter by two columns together, one composite index beats two separate indexes.</text>
 
   <!-- ====== TOP: The Query ====== -->
-  <rect x="170" y="70" width="460" height="44" fill="#1a1a2e" rx="8"/>
+  <rect x="100" y="70" width="600" height="44" fill="#1a1a2e" rx="8"/>
   <text x="400" y="88" text-anchor="middle" font-size="12" fill="#ffd700" font-family="monospace">SELECT * FROM products</text>
   <text x="400" y="106" text-anchor="middle" font-size="12" fill="#ffd700" font-family="monospace">WHERE category = 'electronics' AND price_cents BETWEEN 10000 AND 50000</text>
 
@@ -72,8 +72,8 @@
   <text x="595" y="414" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7a3c">Equality first, range second = fast. 🚀</text>
 
   <!-- ====== Rule at bottom ====== -->
-  <rect x="30" y="442" width="740" height="30" fill="#e8f4fd" rx="8"/>
-  <text x="400" y="456" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a5276">The rule: put equality filters (=) before range filters (BETWEEN, &gt;, &lt;) in a composite index.</text>
-  <text x="400" y="470" text-anchor="middle" font-size="11" fill="#1a5276">This lets PostgreSQL narrow down to an exact group first, then scan a small range within it.</text>
+  <rect x="30" y="442" width="740" height="46" fill="#e8f4fd" rx="8"/>
+  <text x="400" y="462" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a5276">The rule: put equality filters (=) before range filters (BETWEEN, &gt;, &lt;) in a composite index.</text>
+  <text x="400" y="478" text-anchor="middle" font-size="11" fill="#1a5276">This lets PostgreSQL narrow down to an exact group first, then scan a small range within it.</text>
 
 </svg>

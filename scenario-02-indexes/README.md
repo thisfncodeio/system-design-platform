@@ -7,7 +7,7 @@ Three endpoints are getting slow as the database grows. You'll use EXPLAIN ANALY
 **Concepts:** Database Indexes · Query Planning · Cardinality · EXPLAIN ANALYZE · Composite Indexes  
 **Level:** Entry  
 **Recommended:** Scenario 1 first, or read the recap in SCENARIO.md  
-**Time:** ~45 minutes
+**Time:** ~60–90 minutes
 
 ---
 
@@ -39,10 +39,11 @@ No installs. No setup. Everything runs in your browser.
 ## Files
 
 ```
-src/server.js       ← The backend with three slow queries
-SCENARIO.md         ← Your guided walkthrough. Start here.
-db/schema.sql       ← Database schema — no indexes yet
-db/seed.js          ← Creates 1,000 users, 500 products, 100,000 orders
-solution/fix.sql    ← The solution — two indexes with explanations. Don't peek until you've tried.
-scripts/loadtest.js ← Tests all three endpoints
+src/server.js            ← The backend with three slow queries
+src/server.comments.js   ← Same code, with detailed comments for non-JS developers.
+SCENARIO.md              ← Your guided walkthrough. Start here.
+db/schema.sql            ← Database schema — no indexes yet
+db/seed.js               ← Creates 1,000 users, 100,000 products, 100,000 orders
+solution/fix.sql         ← The solution — two indexes with explanations. Don't peek until you've tried.
+scripts/loadtest.js      ← Tests all three endpoints
 ```
